@@ -1,0 +1,82 @@
+---
+- name: Find all .repo files in /etc/yum.repos.d.
+  ansible.builtin.find:
+    paths: /etc/yum.repos.d
+    patterns: '*.repo'
+    file_type: file
+  register: repo_files
+
+- name: Retrieve desired proxy from `environments`.
+  ansible.builtin.set_fact:
+    desired_repo_proxy: "{{ environments[SERVER_ENVIRONMENT].proxy | default('') }}"
+
+- name: Extract repository section names from .repo files.
+  ansible.builtin.slurp:
+    src: "{{ item.path }}"
+  loop: "{{ repo_files.files }}"
+  register: repo_slurps
+  when: desired_repo_proxy != '' and repo_files.files | length > 0
+
+- name: Create a one-time backup of each .repo file before modifications.
+  ansible.builtin.copy:
+    src: "{{ item.path }}"
+    dest: "{{ item.path }}.ansible.bak"
+    remote_src: yes
+    force: no
+  loop: "{{ repo_files.files }}"
+  when: desired_repo_proxy != '' and repo_files.files | length > 0
+
+- name: Build list of repository sections from file contents.
+  ansible.builtin.set_fact:
+    repo_entries: >-
+      {{ repo_entries | default([]) + [ {
+        'file': item.item.path,
+        'content': (item.content | b64decode),
+        'sections': (item.content | b64decode) | regex_findall('^\s*\[(.*?)\]', multiline=True)
+      } ] }}
+  loop: "{{ repo_slurps.results | default([]) }}"
+  when: desired_repo_proxy != ''
+
+- name: Build list of changes (file, section, current proxy).
+  ansible.builtin.set_fact:
+    repo_changes: >-
+      {{ repo_changes | default([]) + [ {
+        'file': item.0.file,
+        'section': item.1,
+        'current_proxy': (item.0.content | regex_search('(?ms)\[' + item.1 + '\][^\n]*?proxy\s*=\s*(.*)', '\1') ) | default('')
+      } ] }}
+  loop: "{{ repo_entries | default([]) | subelements('sections') }}"
+  when: desired_repo_proxy != ''
+
+- name: Set proxy option in each repository section (if different from desired).
+  vars:
+    repo_file: "{{ item.file }}"
+    repo_section: "{{ item.section }}"
+    current_proxy: "{{ item.current_proxy }}"
+  ansible.builtin.ini_file:
+    path: "{{ repo_file }}"
+    section: "{{ repo_section }}"
+    option: proxy
+    value: "{{ desired_repo_proxy }}"
+    backup: no
+  loop: "{{ repo_changes | default([]) }}"
+  when: desired_repo_proxy != '' and (current_proxy | default('') != desired_repo_proxy)
+  register: ini_results
+
+- name: Register count of modified repository files.
+  ansible.builtin.set_fact:
+    modified_repo_files: >-
+      {{ ini_results.results | selectattr('changed') | map(attribute='item.file') | list | unique }}
+  when: ini_results is defined and desired_repo_proxy != ''
+
+- name: Display modified repository files.
+  ansible.builtin.debug:
+    msg: "Configured proxy {{ desired_repo_proxy }} in {{ modified_repo_files | default([]) | length }} files: {{ modified_repo_files | default([]) }}"
+  when: desired_repo_proxy != ''
+
+- name: Configure global proxy in profile.d if not already set
+  ansible.builtin.template:
+    src: proxy.sh.j2
+    dest: /etc/profile.d/proxy.sh
+    mode: '0644'
+  when: desired_repo_proxy != ''

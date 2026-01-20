@@ -1,0 +1,36 @@
+---
+
+- name: "Ensure address space layout randomization (ASLR)  and ptrace_scope are configured"
+  block:
+    - name: "Ensure address space layout randomization (ASLR) is enabled"
+      ansible.builtin.debug:
+        msg: "ASLR will be set via /etc/sysctl.d/60-kernel_sysctl.conf"
+
+    - name: "Ensure ptrace_scope is restricted"
+      ansible.builtin.debug:
+        msg: "Ptrace_scope will be set via /etc/sysctl.d/60-kernel_sysctl.conf"
+
+    - name: "Set ASLR and ptrace_scope kernel parameters with template"
+      ansible.builtin.template:
+        src: sysctl.d/60-kernel_sysctl.conf.j2
+        dest: /etc/sysctl.d/60-kernel_sysctl.conf
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Reload sysctl
+  when: rhel9cis_rule_1_5_1_2
+
+- name: "Ensure core dump backtraces are disabled"
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/coredump.conf
+    regexp: '(?#)^ProcessSizeMax\s*=\s*.*[1-9].*$'
+    line: 'ProcessSizeMax=0'
+  when: rhel9cis_rule_1_5_3
+
+- name: "Ensure core dump storage is disabled"
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/coredump.conf
+    regexp: '^Storage\s*=\s*(?!none).*'
+    line: 'Storage=none'
+  notify: Systemd daemon reload
+  when: prelim_systemd_coredump.stat.exists and rhel9cis_rule_1_5_4

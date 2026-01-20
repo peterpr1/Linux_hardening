@@ -1,0 +1,217 @@
+---
+# vars file for EL9_hardening
+
+# Variable indicating if the operating system is supported.
+# This value is used, among other things, in conditions to stop the script if the operating system is not supported.
+supported_os: >-
+  "{{ (ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9') or
+     (ansible_distribution == 'RedHat' and ansible_distribution_major_version == '9') }}"
+
+# Log file where recommendations requiring manual administrator intervention are recorded.
+manual_intervention_log: /tmp/manual_intervention.log
+
+# Path to the script that detects kernel filesystem modules with CVE vulnerabilities.
+fs_kernel_modules_script: /srv/fs_with_cves.sh
+
+# Name and content of the GPG key for RedHat Enterprise Linux 9 systems.
+rhel_gpg_key_pubkey_name: gpg-pubkey-fd431d51-4ae0493b
+rhel_gpg_key_pubkey_content: "Red Hat, Inc. (release key 2) <security@redhat.com> fd431d51"
+
+# Zabbix variables for repository configuration - only Zabbix LTS versions are supported.
+zabbix_repository_url: 'https://repo.zabbix.com'
+
+repository_map_os_transition:
+  RedHat:
+    '9': '9'
+  OracleLinux:
+    '9': '9'
+
+# GPG key mapping for Zabbix repositories. Below are the keys for EL9.
+# Make sure these keys are kept up to date with the official Zabbix documentation.
+repository_map_gpg_key_list:
+  '9': ['RPM-GPG-KEY-ZABBIX-08EFA7DD', 'RPM-GPG-KEY-ZABBIX-B5333005']
+
+repository_map_os_to_url:
+  '6.0':
+    'RedHat': 'rhel'
+    'OracleLinux': 'rhel'
+  '7.0':
+    'RedHat': 'rhel'
+    'OracleLinux': 'oracle'
+
+repository_map_os_support:
+  RedHat:
+    '9':
+      '6.0': ["x86_64", "aarch64"]
+      '7.0': ["x86_64", "aarch64"]
+  OracleLinux:
+    '9':
+      '6.0': ["x86_64", "aarch64"]
+      '7.0': ["x86_64", "aarch64"]
+
+# Addressing of NTP, DNS, PROXY services for individual environments.
+environments:
+  CEZ:
+    dns:
+      - "10.170.0.10"
+      - "10.170.0.20"
+    ntp:
+      - "10.50.251.10"
+      - "10.50.251.20"
+    proxy: "http://10.150.255.1:8080"
+    zabbix: "172.17.14.70"
+    zabbix_version: "6.0"
+
+  P2_PROD:
+    dns:
+      - "10.203.1.22"
+      - "10.203.1.32"
+    ntp:
+      - "10.4.13.10"
+      - "10.4.13.20"
+    proxy: "http://10.150.255.1:8080"
+    zabbix: "10.203.1.50"
+    zabbix_version: "6.0"
+
+  P2_TEST:
+    dns:
+      - "10.203.1.20"
+      - "10.203.1.30"
+    ntp:
+      - "10.15.13.10"
+      - "10.15.13.20"
+    proxy: "http://10.150.255.1:8080"
+    zabbix: "10.203.1.50"
+    zabbix_version: "6.0"
+
+  P2_EVA:
+    dns:
+      - "10.203.1.21"
+      - "10.203.1.31"
+    ntp:
+      - "10.26.13.10"
+      - "10.26.13.20"
+    proxy: "http://10.150.255.1:8080"
+    zabbix: "10.203.1.50"
+    zabbix_version: "6.0"
+
+  P4_PROD:
+    dns:
+      - "10.4.6.30"
+      - "10.4.6.40"
+    ntp:
+      - "10.4.13.10"
+      - "10.4.13.20"
+    proxy: "http://10.4.4.10:8080"
+    zabbix: "10.1.13.10"
+    zabbix_version: "6.0"
+
+  P4_TEST:
+    dns:
+      - "10.15.6.30"
+      - "10.15.6.40"
+    ntp:
+      - "10.15.13.10"
+      - "10.15.13.20"
+    proxy: "http://10.15.4.10:8080"
+    zabbix: "10.1.13.10"
+    zabbix_version: "6.0"
+
+  P4_EVA:
+    dns:
+      - "10.26.6.30"
+      - "10.26.6.40"
+    ntp:
+      - "10.26.13.10"
+      - "10.26.13.20"
+    proxy: "http://10.26.4.10:8080"
+    zabbix: "10.1.13.10"
+    zabbix_version: "6.0"
+    
+  COPD_PROD:
+    dns:
+      - "10.181.2.10"
+      - "10.181.2.11"
+    ntp:
+      - "10.181.9.10"
+      - "10.181.9.11"
+    proxy: "http://10.181.7.10:8080"
+    zabbix: "10.181.7.20"
+    zabbix_version: "6.0"
+    
+  COPD_TEST:
+    dns:
+      - "10.187.2.10"
+      - "10.187.2.11"
+    ntp:
+      - "10.187.9.10"
+      - "10.187.9.11"
+    proxy: "http://10.187.7.10:8080"
+    zabbix: "10.181.7.20"
+    zabbix_version: "6.0"
+    
+  COPD_EVA:
+    dns:
+      - "10.185.2.10"
+      - "10.185.2.11"
+    ntp:
+      - "10.185.9.10"
+      - "10.185.9.11"
+    proxy: "http://10.185.7.10:8080"
+    zabbix: "10.181.7.20"
+    zabbix_version: "6.0"
+    
+  COPD_ACC:
+    dns:
+      - "10.189.2.10"
+      - "10.189.2.11"
+    ntp:
+      - "10.189.9.10"
+      - "10.189.9.11"
+    proxy: "http://10.189.7.10:8080"
+    zabbix: "10.181.7.20"
+    zabbix_version: "6.0"
+
+  ZOPD_PROD:
+    dns:
+      - "10.191.2.10"
+      - "10.191.2.11"
+    ntp:
+      - "10.191.2.10"
+      - "10.191.2.11"
+    proxy: "http://10.191.7.10:8080"
+    zabbix: "10.191.7.20"
+    zabbix_version: "6.0"
+
+  ZOPD_TEST:
+    dns:
+      - "10.197.2.10"
+      - "10.197.2.11"
+    ntp:
+      - "10.197.2.10"
+      - "10.197.2.11"
+    proxy: "http://10.197.7.10:8080"
+    zabbix: "10.191.7.20"
+    zabbix_version: "6.0"
+
+  ZOPD_EVA:
+    dns:
+      - "10.195.2.10"
+      - "10.195.2.11"
+    ntp:
+      - "10.195.2.10"
+      - "10.195.2.11"
+    proxy: "http://10.195.7.10:8080"
+    zabbix: "10.191.7.20"
+    zabbix_version: "6.0"
+
+  ZOPD_ACC:
+    dns:
+      - "10.199.2.10"
+      - "10.199.2.11"
+    ntp:
+      - "10.199.2.10"
+      - "10.199.2.11"
+    proxy: "http://10.199.7.10:8080"
+    zabbix: "10.191.7.20"
+    zabbix_version: "6.0"

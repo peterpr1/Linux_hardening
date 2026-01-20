@@ -1,0 +1,254 @@
+---
+- name: "Ensure cramfs kernel module is not available."
+  block:
+    - name: "Create a line to disable cramfs module in /etc/modprobe.d/CIS.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install cramfs(\\s|$)"
+        line: "install cramfs /bin/false"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Create a line to blacklist cramfs module in /etc/modprobe.d/blacklist.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/blacklist.conf
+        regexp: "^(#)?blacklist cramfs(\\s|$)"
+        line: "blacklist cramfs"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Disable cramfs kernel module."
+      community.general.modprobe:
+        name: cramfs
+        state: absent
+  when: rhel9cis_rule_1_1_1_1
+
+- name: "Ensure freevxfs kernel module is not available."
+  block:
+    - name: "Create a line to disable the module in /etc/modprobe.d/CIS.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install freevxfs(\\s|$)"
+        line: "install freevxfs /bin/false"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Create a line to blacklist freevxfs module in /etc/modprobe.d/blacklist.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/blacklist.conf
+        regexp: "^(#)?blacklist freevxfs(\\s|$)"
+        line: "blacklist freevxfs"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Disable freevxfs kernel module."
+      community.general.modprobe:
+        name: freevxfs
+        state: absent
+  when: rhel9cis_rule_1_1_1_2
+
+- name: "Ensure hfs kernel module is not available."
+  block:
+    - name: "Create a line to disable the module in /etc/modprobe.d/CIS.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install hfs(\\s|$)"
+        line: "install hfs /bin/false"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Create a line to blacklist hfs module in /etc/modprobe.d/blacklist.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/blacklist.conf
+        regexp: "^(#)?blacklist hfs(\\s|$)"
+        line: "blacklist hfs"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Disable hfs kernel module."
+      community.general.modprobe:
+        name: hfs
+        state: absent
+  when: rhel9cis_rule_1_1_1_3
+
+- name: "Ensure hfsplus kernel module is not available."
+  block:
+    - name: "Create a line to disable the module in /etc/modprobe.d/CIS.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install hfsplus(\\s|$)"
+        line: "install hfsplus /bin/false"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Create a line to blacklist hfsplus module in /etc/modprobe.d/blacklist.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/blacklist.conf
+        regexp: "^(#)?blacklist hfsplus(\\s|$)"
+        line: "blacklist hfsplus"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Disable hfsplus kernel module."
+      community.general.modprobe:
+        name: hfsplus
+        state: absent
+  when: rhel9cis_rule_1_1_1_4
+
+- name: "Ensure jffs2 kernel module is not available."
+  block:
+    - name: "Create a line to disable the module in /etc/modprobe.d/CIS.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install jffs2(\\s|$)"
+        line: "install jffs2 /bin/false"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Create a line to blacklist jffs2 module in /etc/modprobe.d/blacklist.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/blacklist.conf
+        regexp: "^(#)?blacklist jffs2(\\s|$)"
+        line: "blacklist jffs2"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Disable jffs2 kernel module."
+      community.general.modprobe:
+        name: jffs2
+        state: absent
+  when: rhel9cis_rule_1_1_1_5
+
+- name: "Ensure squashfs kernel module is not available"
+  block:
+    - name: "Create a line to disable squashfs module in /etc/modprobe.d/CIS.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install squashfs(\\s|$)"
+        line: "install squashfs /bin/true"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Create a line to blacklist squashfs module in /etc/modprobe.d/blacklist.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/blacklist.conf
+        regexp: "^(#)?blacklist squashfs(\\s|$)"
+        line: "blacklist squashfs"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Disable squashfs kernel module."
+      community.general.modprobe:
+        name: squashfs
+        state: absent
+  when: rhel9cis_rule_1_1_1_6
+
+- name: "Ensure udf kernel module is not available"
+  block:
+    - name: "Create a line to disable udf module in /etc/modprobe.d/CIS.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install udf(\\s|$)"
+        line: "install udf /bin/true"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Create a line to blacklist udf module in /etc/modprobe.d/blacklist.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/blacklist.conf
+        regexp: "^(#)?blacklist udf(\\s|$)"
+        line: "blacklist udf"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Disable udf kernel module."
+      community.general.modprobe:
+        name: udf
+        state: absent
+  when: rhel9cis_rule_1_1_1_7
+
+- name: Ensure usb-storage kernel module is not available.
+  block:
+    - name: "Create a line to disable the module in /etc/modprobe.d/CIS.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install usb-storage(\\s|$)"
+        line: "install usb-storage /bin/false"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Create a line to blacklist usb-storage module in /etc/modprobe.d/blacklist.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/blacklist.conf
+        regexp: "^(#)?blacklist usb-storage(\\s|$)"
+        line: "blacklist usb-storage"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Disable usb-storage kernel module."
+      community.general.modprobe:
+        name: usb-storage
+        state: absent
+  when: rhel9cis_rule_1_1_1_8
+
+- name: Ensure firewire-core kernel module is not available.
+  block:
+    - name: "Create a line to disable the module in /etc/modprobe.d/CIS.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install firewire-core(\\s|$)"
+        line: "install firewire-core /bin/false"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Create a line to blacklist firewire-core module in /etc/modprobe.d/blacklist.conf."
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/blacklist.conf
+        regexp: "^(#)?blacklist firewire-core(\\s|$)"
+        line: "blacklist firewire-core"
+        create: true
+        mode: 'go-rwx'
+
+    - name: "Disable firewire-core kernel module."
+      community.general.modprobe:
+        name: firewire-core
+        state: absent
+  when: rhel9cis_rule_1_1_1_9
+
+- name: Ensure unused kernel file system modules are not available.
+  vars:
+    warn_control_id: '1.1.1.10'
+  block:
+    - name: "Ensure unused kernel file system modules are not available. Copy the script detecting file system modules with."
+      ansible.builtin.copy:
+        src: fs_with_cves.sh
+        dest: "{{ fs_kernel_modules_script }}"
+        owner: root
+        group: root
+        mode: 'u+x,go-wx'
+
+    - name: "Run the script detecting file system modules."
+      ansible.builtin.command: "{{ fs_kernel_modules_script }}"
+      changed_when: false
+      failed_when: discovered_fs_modules_loaded.rc not in [ 0, 99 ]
+      register: discovered_fs_modules_loaded
+
+    - name: "Display a warning if loaded file system modules are detected (defined in the script)."
+      when: discovered_fs_modules_loaded.stdout | length > 0
+      ansible.builtin.debug:
+        msg: "{{ ['Warning !! Active file system modules detected that require manual verification.'] + discovered_fs_modules_loaded.stdout_lines }}"
+
+    - name: "Create an entry in the log file for tasks requiring manual intervention." 
+      when: discovered_fs_modules_loaded.stdout | length > 0
+      ansible.builtin.blockinfile:
+        path: "{{ manual_intervention_log }}"
+        create: yes
+        mode: '0644'
+        marker: ""
+        block: |
+          Recommendations for task "{{ warn_control_id }}":
+          -------------------------------------------------------------------------------------------------------------- 
+          Loaded file system modules requiring verification were detected.
+          On the remote server, there is a script detecting loaded modules located at: {{ fs_kernel_modules_script }}.
+          Run the script and verify its results. Disable any unnecessary modules as appropriate.
+  when: rhel9cis_rule_1_1_1_10

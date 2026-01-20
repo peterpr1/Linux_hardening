@@ -1,0 +1,90 @@
+---
+- name: Import tasks from section 1 - cis_1.1.1.x.yml
+  import_tasks:
+    file: section_1/cis_1.1.1.x.yml
+  when: rhel9cis_section1
+
+- name: Import tasks from section 1 - cis_1.1.2.1.x.yml
+  import_tasks:
+    file: section_1/cis_1.1.2.1.x.yml
+  when: rhel9cis_section1
+
+- name: Import tasks from section 1 - cis_1.1.2.2.x.yml
+  import_tasks:
+    file: section_1/cis_1.1.2.2.x.yml
+  when: rhel9cis_section1
+
+- name: Import tasks from section 1 - cis_1.1.2.3.x.yml
+  import_tasks:
+    file: section_1/cis_1.1.2.3.x.yml
+  when: rhel9cis_section1
+
+- name: Import tasks from section 1 - cis_1.1.2.4.x.yml
+  import_tasks:
+    file: section_1/cis_1.1.2.4.x.yml
+  when: rhel9cis_section1
+
+- name: Import tasks from section 1 - cis_1.1.2.5.x.yml
+  import_tasks:
+    file: section_1/cis_1.1.2.5.x.yml
+  when: rhel9cis_section1
+
+- name: Import tasks from section 1 - cis_1.1.2.6.x.yml
+  import_tasks:
+    file: section_1/cis_1.1.2.6.x.yml
+  when: rhel9cis_section1
+
+- name: Import tasks from section 1 - cis_1.1.2.7.x.yml
+  import_tasks:
+    file: section_1/cis_1.1.2.7.x.yml
+  when: rhel9cis_section1
+
+- name: Import tasks from section 1 - cis_1.2.1.x.yml
+  import_tasks:
+    file: section_1/cis_1.2.1.x.yml
+  when: rhel9cis_section1
+
+- name: Import tasks from section 1 - cis_1.2.2.x.yml
+  import_tasks:
+    file: section_1/cis_1.2.2.x.yml
+  when: rhel9cis_section1
+
+- name: Import tasks from section 1 - cis_1.3.1.x.yml
+  import_tasks:
+    file: section_1/cis_1.3.1.x.yml
+  when: rhel9cis_section1
+
+- name: Import tasks from section 1 - cis_1.4.x.yml
+  import_tasks:
+    file: section_1/cis_1.4.x.yml
+  when: rhel9cis_section1
+
+- name: Import tasks from section 1 - cis_1.5.x.yml
+  import_tasks:
+    file: section_1/cis_1.5.x.yml
+  when: rhel9cis_section1
+
+- name: Import tasks from section 1 - cis_1.6.x.yml
+  import_tasks:
+    file: section_1/cis_1.6.x.yml
+  when: rhel9cis_section1
+
+- name: Import tasks from section 1 - cis_1.7.x.yml
+  import_tasks:
+    file: section_1/cis_1.7.x.yml
+  when: rhel9cis_section1
+
+- name: Import tasks from section 1 - cis_1.8.x.yml
+  import_tasks:
+    file: section_1/cis_1.8.x.yml
+  when: rhel9cis_section1
+
+- name: Import tasks from section 2 - cis_2.1.x.yml
+  import_tasks:
+    file: section_2/cis_2.1.x.yml
+  when: rhel9cis_section2
+
+- name: Import tasks from section 2 - cis_2.2.x.yml
+  import_tasks:
+    file: section_2/cis_2.2.x.yml
+  when: rhel9cis_section2

@@ -1,0 +1,24 @@
+---
+- name: "Create crypto policy module MIN-RSA allowing RSA,DH,DSA keys down to 2048 bits"
+  ansible.builtin.template:
+    src: crypto-policies/MIN-RSA.pmod.j2
+    dest: /etc/crypto-policies/policies/modules/MIN-RSA.pmod
+    owner: root
+    group: root
+    mode: 'g-wx,o-rwx'
+  when: rhel9cis_rule_1_6_x
+
+- name: "Switch to crypto policy module MIN-RSA"
+  ansible.builtin.set_fact:
+    rhel9cis_crypto_policy_module: 'MIN-RSA'
+  changed_when: true
+  notify: Set Crypto Policy
+  when: rhel9cis_rule_1_6_x
+
+- name: "Ensure system wide crypto policy is not set in sshd configuration"
+  ansible.builtin.lineinfile:
+    path: /etc/sysconfig/sshd
+    regexp: ^CRYPTO_POLICY\s*=
+    state: absent
+  notify: Restart sshd
+  when: rhel9cis_rule_1_6_x

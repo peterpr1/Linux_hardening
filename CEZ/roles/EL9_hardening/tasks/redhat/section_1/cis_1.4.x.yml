@@ -1,0 +1,90 @@
+---
+- name: "Ensure bootloader password is set."
+  vars:
+    warn_control_id: "1.4.1"
+  block:
+    - name: "Ensure bootloader password is set."
+      block:
+        - name: "Verify if /boot/grub2/user.cfg exists."
+          ansible.builtin.stat:
+            path: /boot/grub2/user.cfg
+          register: grub_user_cfg_stat
+          changed_when: false
+
+        - name: "Verify if 'GRUB2_PASSWORD' is set in user.cfg when the file exists."
+          when: grub_user_cfg_stat.stat.exists
+          ansible.builtin.command: "grep -i 'GRUB2_PASSWORD' /boot/grub2/user.cfg"
+          register: grub_user_cfg_password_check
+          changed_when: false
+          failed_when: false
+
+        - name: "Display a warning if the bootloader password is not configured."
+          when: not grub_user_cfg_stat.stat.exists  or  grub_user_cfg_password_check.rc != 0
+          ansible.builtin.debug:
+            msg: "GRUB password not found. Please configure the bootloader password."
+
+        - name: "Create a log entry for tasks requiring manual intervention."
+          when: not grub_user_cfg_stat.stat.exists  or  grub_user_cfg_password_check.rc != 0
+          #when: grub_user_cfg_stat.stat.isreg is not defined and grub_user_cfg_password_check.rc != 0
+          ansible.builtin.blockinfile:
+            path: "{{ manual_intervention_log }}"
+            create: yes
+            mode: '0644'
+            marker: ""
+            block: |
+              Recommendations for task "{{ warn_control_id }}":
+              ------------------------------------------------------------------------
+              GRUB2_PASSWORD variable not found.
+              Configure the password (GRUB2_PASSWORD) in /boot/grub2/user.cfg to secure access to the bootloader settings.
+              To set the password, run the command: grub2-setpassword
+              Set a password that complies with the organization's policy and store it in a secure location.
+  when: rhel9cis_rule_1_4_1
+
+- name: "Ensure bootloader configuration file permissions are set."
+  when: rhel9cis_rule_1_4_2
+  vars:
+    efi_mount_options: ['umask=0077', 'fmask=0077', 'uid=0', 'gid=0']
+  block:
+    - name: "Ensure bootloader configuration file permissions are set | bios based system"
+      when: rhel9cis_legacy_boot
+      ansible.builtin.file:
+        path: "/boot/grub2/{{ item.path }}"
+        owner: root
+        group: root
+        mode: "{{ item.mode }}"
+        state: touch
+        modification_time: preserve
+        access_time: preserve
+      loop:
+        - { path: 'grub.cfg', mode: 'u-x,go-rwx' }
+        - { path: 'grubenv', mode: 'u-x,go-rwx' }
+        - { path: 'user.cfg', mode: 'u-x,go-rwx' }
+
+    - name: "Ensure bootloader configuration file permissions are set | efi based system"
+      when: not rhel9cis_legacy_boot
+      block:
+        - name: "Register existing mount options in fstab for /boot/efi."
+          ansible.builtin.shell: grep "^[^#;]" /etc/fstab | grep '/boot/efi' | awk -F" " '{print $4}'
+          changed_when: false
+          check_mode: false
+          register: discovered_efi_fstab
+
+        - name: "Initialize the variable efi_mount_opts_addition"
+          ansible.builtin.set_fact:
+            efi_mount_opts_addition: ""
+    
+        - name: "Build facts based on existing mount options for /boot/efi"
+          when: item not in discovered_efi_fstab.stdout
+          ansible.builtin.set_fact:
+            efi_mount_opts_addition: "{{ efi_mount_opts_addition + ',' + item }}"
+          loop: "{{ efi_mount_options }}"
+    
+        - name: "Add missing mount options for /boot/efi in fstab"
+          when: efi_mount_opts_addition | length > 0
+          ansible.builtin.lineinfile:
+            path: /etc/fstab
+            regexp: (.*/boot/efi\s*\w*\s*){{ discovered_efi_fstab.stdout }}(.*)
+            line: \1{{ discovered_efi_fstab.stdout + efi_mount_opts_addition }}\2
+            backrefs: true
+          notify: Remount /boot/efi
+  

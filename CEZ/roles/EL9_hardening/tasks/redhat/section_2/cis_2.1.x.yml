@@ -1,0 +1,517 @@
+---
+
+- name: "Ensure autofs services are not in use"
+  block:
+    - name: "Ensure autofs services are not in use | Remove Package"
+      when:
+        - not rhel9cis_autofs_services
+        - not rhel9cis_autofs_mask
+      ansible.builtin.package:
+        name: autofs
+        state: absent
+
+    - name: "Ensure autofs services are not in use | Mask service"
+      when:
+        - not rhel9cis_autofs_services
+        - rhel9cis_autofs_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: autofs
+        enabled: false
+        state: stopped
+        masked: true
+  when:
+    - rhel9cis_rule_2_1_1
+    - "'autofs' in ansible_facts.packages"
+
+- name: "Ensure avahi daemon services are not in use"
+  block:
+    - name: " Ensure avahi daemon services are not in use | Remove package"
+      when:
+        - not rhel9cis_avahi_server
+        - not rhel9cis_avahi_mask
+      ansible.builtin.package:
+        name:
+          - avahi-autoipd
+          - avahi
+        state: absent
+  when: rhel9cis_rule_2_1_2
+
+- name: "Ensure avahi daemon services are not in use | Mask service"
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: false
+    state: stopped
+    masked: true
+  loop:
+    - avahi-daemon.socket
+    - avahi-daemon.service
+  when:
+    - not rhel9cis_avahi_server
+    - rhel9cis_avahi_mask
+  notify: Systemd daemon reload
+
+- name: "Ensure dhcp server services are not in use"
+  block:
+    - name: "Ensure dhcp server services are not in use | Remove package"
+      when:
+        - not rhel9cis_dhcp_server
+        - not rhel9cis_dhcp_mask
+      ansible.builtin.package:
+        name: dhcp-server
+        state: absent
+
+    - name: "Ensure dhcp server services are not in use | Mask service"
+      when:
+        - not rhel9cis_dhcp_server
+        - rhel9cis_dhcp_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: false
+        state: stopped
+        masked: true
+      loop:
+        - dhcpd.service
+        - dhcpd6.service
+  when: rhel9cis_rule_2_1_3
+
+- name: "Ensure dns server services are not in use"
+  block:
+    - name: "Ensure dns server services are not in use | Remove package"
+      when:
+        - not rhel9cis_dns_server
+        - not rhel9cis_dns_mask
+      ansible.builtin.package:
+        name: bind
+        state: absent
+
+    - name: "Ensure dns server services are not in use | Mask service"
+      when:
+        - not rhel9cis_dns_server
+        - rhel9cis_dns_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: named.service
+        enabled: false
+        state: stopped
+        masked: true
+  when: rhel9cis_rule_2_1_4
+
+- name: "Ensure dnsmasq server services are not in use"
+  block:
+    - name: "Ensure dnsmasq server services are not in use | Remove package"
+      when:
+        - not rhel9cis_dnsmasq_server
+        - not rhel9cis_dnsmasq_mask
+      ansible.builtin.package:
+        name: dnsmasq
+        state: absent
+
+    - name: "Ensure dnsmasq server services are not in use | Mask service"
+      when:
+        - not rhel9cis_dnsmasq_server
+        - rhel9cis_dnsmasq_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: dnsmasq.service
+        enabled: false
+        state: stopped
+        masked: true
+  when: rhel9cis_rule_2_1_5
+
+- name: "Ensure samba file server services are not in use"
+  block:
+    - name: "Ensure samba file server services are not in use | Remove package"
+      when:
+        - not rhel9cis_samba_server
+        - not rhel9cis_samba_mask
+      ansible.builtin.package:
+        name: samba
+        state: absent
+
+    - name: "Ensure samba file server services are not in use | Mask service"
+      when:
+        - not rhel9cis_samba_server
+        - rhel9cis_samba_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: smb.service
+        enabled: false
+        state: stopped
+        masked: true
+  when: rhel9cis_rule_2_1_6
+
+- name: "Ensure ftp server services are not in use"
+  block:
+    - name: "Ensure ftp server services are not in use | Remove package"
+      when:
+        - not rhel9cis_ftp_server
+        - not rhel9cis_ftp_mask
+      ansible.builtin.package:
+        name: vsftpd
+        state: absent
+
+    - name: "Ensure ftp server services are not in use | Mask service"
+      when:
+        - not rhel9cis_ftp_server
+        - rhel9cis_ftp_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: vsftpd.service
+        enabled: false
+        state: stopped
+        masked: true
+  when: rhel9cis_rule_2_1_7
+
+- name: "Ensure message access server services are not in use"
+  block:
+    - name: "Ensure message access server services are not in use | Remove package"
+      when:
+        - not rhel9cis_message_server
+        - not rhel9cis_message_mask
+      ansible.builtin.package:
+        name:
+          - dovecot
+          - cyrus-imapd
+        state: absent
+
+    - name: "Ensure message access server services are not in use | Mask service"
+      when:
+        - not rhel9cis_message_server
+        - rhel9cis_message_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: false
+        state: stopped
+        masked: true
+      loop:
+        - "dovecot.socket"
+        - "dovecot.service"
+        - "cyrus-imapd.service"
+  when: rhel9cis_rule_2_1_8
+
+- name: "Ensure network file system services are not in use"
+  block:
+    - name: "Ensure network file system services are not in use | Remove package"
+      when:
+        - not rhel9cis_nfs_server
+        - not rhel9cis_nfs_mask
+      ansible.builtin.package:
+        name: nfs-utils
+        state: absent
+
+    - name: "Ensure network file system services are not in use | Mask service"
+      when:
+        - not rhel9cis_nfs_server
+        - rhel9cis_nfs_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: nfs-server.service
+        enabled: false
+        state: stopped
+        masked: true
+  when: rhel9cis_rule_2_1_9
+
+- name: "Ensure nis server services are not in use"
+  notify: Systemd daemon reload
+  block:
+    - name: "Ensure nis server services are not in use | Remove package"
+      when:
+        - not rhel9cis_nis_server
+        - not rhel9cis_nis_mask
+      ansible.builtin.package:
+        name: ypserv
+        state: absent
+
+    - name: "Ensure nis server services are not in use | Mask service"
+      when:
+        - not rhel9cis_nis_server
+        - rhel9cis_nis_mask
+      ansible.builtin.systemd:
+        name: ypserv.service
+        enabled: false
+        state: stopped
+        masked: true
+  when: rhel9cis_rule_2_1_10
+
+- name: "Ensure print server services are not in use"
+  block:
+    - name: "Ensure print server services are not in use | Remove package"
+      when:
+        - not rhel9cis_print_server
+        - not rhel9cis_print_mask
+      ansible.builtin.package:
+        name: cups
+        state: absent
+
+    - name: "Ensure print server services are not in use | Mask service"
+      when:
+        - not rhel9cis_print_server
+        - rhel9cis_print_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: false
+        state: stopped
+        masked: true
+      loop:
+        - "cups.socket"
+        - "cups.service"
+  when: rhel9cis_rule_2_1_11
+
+- name: "Ensure rpcbind services are not in use"
+  block:
+    - name: "Ensure rpcbind services are not in use | Remove package"
+      when:
+        - not rhel9cis_rpc_server
+        - not rhel9cis_rpc_mask
+      ansible.builtin.package:
+        name: rpcbind
+        state: absent
+
+    - name: "Ensure rpcbind services are not in use | Mask service"
+      when:
+        - not rhel9cis_rpc_server
+        - rhel9cis_rpc_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: false
+        state: stopped
+        masked: true
+      loop:
+        - rpcbind.service
+        - rpcbind.socket
+  when: rhel9cis_rule_2_1_12
+
+- name: "Ensure rsync services are not in use"
+  block:
+    - name: "Ensure rsync services are not in use | Remove package"
+      when:
+        - not rhel9cis_rsync_server
+        - not rhel9cis_rsync_mask
+      ansible.builtin.package:
+        name: rsync-daemon
+        state: absent
+
+    - name: "Ensure rsync services are not in use | Mask service"
+      when:
+        - not rhel9cis_rsync_server
+        - rhel9cis_rsync_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: false
+        state: stopped
+        masked: true
+      loop:
+        - 'rsyncd.socket'
+        - 'rsyncd.service'
+  when: rhel9cis_rule_2_1_13
+
+- name: "Ensure snmp services are not in use"
+  block:
+    - name: "Ensure snmp services are not in use | Remove package"
+      when:
+        - not rhel9cis_snmp_server
+        - not rhel9cis_snmp_mask
+      ansible.builtin.package:
+        name: net-snmp
+        state: absent
+
+    - name: "Ensure snmp services are not in use | Mask service"
+      when:
+        - not rhel9cis_snmp_server
+        - rhel9cis_snmp_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: snmpd.service
+        enabled: false
+        state: stopped
+        masked: true
+  when: rhel9cis_rule_2_1_14
+  
+- name: "Ensure telnet server services are not in use"
+  block:
+    - name: "Ensure telnet server services are not in use | Remove package"
+      when:
+        - not rhel9cis_telnet_server
+        - not rhel9cis_telnet_mask
+      ansible.builtin.package:
+        name: telnet-server
+        state: absent
+
+    - name: "Ensure telnet server services are not in use | Mask service"
+      when:
+        - not rhel9cis_telnet_server
+        - rhel9cis_telnet_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: telnet.socket
+        enabled: false
+        state: stopped
+        masked: true
+  when: rhel9cis_rule_2_1_15
+
+- name: "Ensure tftp server services are not in use"
+  block:
+    - name: "Ensure tftp server services are not in use | Remove package"
+      when:
+        - not rhel9cis_tftp_server
+        - not rhel9cis_tftp_mask
+      ansible.builtin.package:
+        name: tftp-server
+        state: absent
+
+    - name: "Ensure tftp server services are not in use | Mask service"
+      when:
+        - not rhel9cis_tftp_server
+        - rhel9cis_tftp_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: false
+        state: stopped
+        masked: true
+      loop:
+        - 'tftp.socket'
+        - 'tftp.service'
+  when: rhel9cis_rule_2_1_16
+
+- name: "Ensure web proxy server services are not in use"
+  block:
+    - name: "Ensure web proxy server services are not in use | Remove package"
+      when:
+        - not rhel9cis_squid_server
+        - not rhel9cis_squid_mask
+      ansible.builtin.package:
+        name: squid
+        state: absent
+
+    - name: "Ensure web proxy server services are not in use | Mask service"
+      when:
+        - not rhel9cis_squid_server
+        - rhel9cis_squid_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: squid.service
+        enabled: false
+        state: stopped
+        masked: true
+  when: rhel9cis_rule_2_1_17
+
+- name: "Ensure web server services are not in use"
+  block:
+    - name: "Ensure web server services are not in use | Remove httpd server"
+      when:
+        - not rhel9cis_httpd_server
+        - not rhel9cis_httpd_mask
+      ansible.builtin.package:
+        name: httpd
+        state: absent
+
+    - name: "Ensure web server services are not in use | Remove nginx server"
+      when:
+        - not rhel9cis_nginx_server
+        - not rhel9cis_nginx_mask
+      ansible.builtin.package:
+        name: nginx
+        state: absent
+
+    - name: "Ensure web server services are not in use | Mask httpd service"
+      when:
+        - not rhel9cis_httpd_server
+        - rhel9cis_httpd_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: httpd.service
+        enabled: false
+        state: stopped
+        masked: true
+
+    - name: "Ensure web server services are not in use | Mask nginx service"
+      when:
+        - not rhel9cis_nginx_server
+        - rhel9cis_nginx_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: ngnix.service
+        enabled: false
+        state: stopped
+        masked: true
+  when: rhel9cis_rule_2_1_18
+
+- name: "Ensure xinetd services are not in use"
+  block:
+    - name: "Ensure xinetd services are not in use | Remove package"
+      when:
+        - not rhel9cis_xinetd_server
+        - not rhel9cis_xinetd_mask
+      ansible.builtin.package:
+        name: xinetd
+        state: absent
+
+    - name: "Ensure xinetd services are not in use | Mask service"
+      when:
+        - not rhel9cis_xinetd_server
+        - rhel9cis_xinetd_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: xinetd.service
+        enabled: false
+        state: stopped
+        masked: true
+  when: rhel9cis_rule_2_1_19
+
+- name: "Ensure X window server services are not in use"
+  ansible.builtin.package:
+    name: xorg-x11-server-common
+    state: absent
+  when:
+    - not rhel9cis_xwindow_server
+    - rhel9cis_rule_2_1_20
+
+- name: "Ensure mail transfer agents are configured for local-only mode"
+  ansible.builtin.lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: "^(#)?inet_interfaces"
+    line: "inet_interfaces = loopback-only"
+  when:
+    - not rhel9cis_is_mail_server
+    - "'postfix' in ansible_facts.packages"
+    - rhel9cis_rule_2_1_21
+  notify: Restart postfix
+
+- name: "Ensure only approved services are listening on a network interface"
+  vars:
+    warn_control_id: '2.1.22'
+  block:
+    - name: "Ensure only approved services are listening on a network interface | Get list of services"
+      ansible.builtin.command: systemctl list-units --type=service 
+      changed_when: false
+      failed_when: discovered_running_services.rc not in [ 0, 1 ]
+      check_mode: false
+      register: discovered_running_services
+
+    - name: "Ensure only approved services are listening on a network interface | Display list of services"
+      ansible.builtin.debug:
+        msg:
+          - "Warning!! Below are the list of services, both active and inactive"
+          - "Please review to make sure all are essential"
+          - "{{ discovered_running_services.stdout_lines }}"
+
+    - name: "Create an entry in the log file for tasks requiring manual intervention." 
+      ansible.builtin.blockinfile:
+        path: "{{ manual_intervention_log }}"
+        create: yes
+        mode: '0644'
+        marker: ""
+        block: |
+          Recommendations for task "{{ warn_control_id }}":
+          -------------------------------------------------------------------------------------------------------------- 
+          Verify services running on the system are essential and approved.
+          Use the following command to get the list of services:
+          systemctl list-units --type=service
+  when: rhel9cis_rule_2_1_22

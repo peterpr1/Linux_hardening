@@ -1,0 +1,40 @@
+---
+- name: "Ensure ftp client is not installed"
+  ansible.builtin.package:
+    name: ftp
+    state: absent
+  when:
+    - not rhel9cis_ftp_client
+    - rhel9cis_rule_2_2_1
+
+- name: "Ensure ldap client is not installed"
+  ansible.builtin.package:
+    name: openldap-clients
+    state: absent
+  when:
+    - not rhel9cis_openldap_clients_required
+    - rhel9cis_rule_2_2_2
+
+- name: "Ensure nis client is not installed"
+  ansible.builtin.package:
+    name: ypbind
+    state: absent
+  when:
+    - not rhel9cis_ypbind_required
+    - rhel9cis_rule_2_2_3
+
+- name: "Ensure telnet client is not installed"
+  ansible.builtin.package:
+    name: telnet
+    state: absent
+  when:
+    - not rhel9cis_telnet_required
+    - rhel9cis_rule_2_2_4
+
+- name: "Ensure TFTP client is not installed"
+  ansible.builtin.package:
+    name: tftp
+    state: absent
+  when:
+    - not rhel9cis_tftp_client
+    - rhel9cis_rule_2_2_5

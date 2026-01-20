@@ -1,0 +1,10 @@
+CEZPROXY="{{ environments[SERVER_ENVIRONMENT].proxy }}"
+HTTP_PROXY="{{ environments[SERVER_ENVIRONMENT].proxy }}"
+HTTPS_PROXY="{{ environments[SERVER_ENVIRONMENT].proxy }}"
+FTP_PROXY="{{ environments[SERVER_ENVIRONMENT].proxy }}"
+http_proxy="{{ environments[SERVER_ENVIRONMENT].proxy }}"
+https_proxy="{{ environments[SERVER_ENVIRONMENT].proxy }}"
+ftp_proxy="{{ environments[SERVER_ENVIRONMENT].proxy }}"
+NO_PROXY="localhost,127.0.0.1,10.13.1.20,10.17.1.20"
+no_proxy="localhost,127.0.0.1,10.13.1.20,10.17.1.20"
+export CEZPROXY HTTP_PROXY HTTPS_PROXY FTP_PROXY http_proxy https_proxy ftp_proxy NO_PROXY no_proxy

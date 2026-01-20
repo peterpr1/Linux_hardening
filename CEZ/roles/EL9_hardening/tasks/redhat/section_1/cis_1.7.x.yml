@@ -1,0 +1,72 @@
+---
+- name: "Ensure message of the day is configured properly"
+  ansible.builtin.template:
+    src: etc/motd.j2
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: 'u-x,go-wx'
+  when: rhel9cis_rule_1_7_1
+
+- name: "Remove cockpit motd banner file if present"
+  ansible.builtin.file:
+    path: /etc/motd.d/cockpit
+    state: absent
+  when: rhel9cis_rule_1_7_1
+
+- name: "Remove cockpit issue banner file if present"
+  ansible.builtin.file:
+    path: /etc/issue.d/cockpit.issue
+    state: absent
+  when: rhel9cis_rule_1_7_1
+
+- name: "Ensure local login warning banner is configured properly"
+  ansible.builtin.template:
+    src: etc/issue.j2
+    dest: /etc/issue
+    owner: root
+    group: root
+    mode: 'go-wx'
+  when: rhel9cis_rule_1_7_2
+
+- name: "Ensure remote login warning banner is configured properly"
+  ansible.builtin.template:
+    src: etc/issue.net.j2
+    dest: /etc/issue.net
+    owner: root
+    group: root
+    mode: 'go-wx'
+  when: rhel9cis_rule_1_7_3
+
+- name: "Enable Banner display for SSH"
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^Banner'
+    line: 'Banner /etc/issue.net'
+    state: present
+  notify: Restart sshd
+  when: rhel9cis_rule_1_7_3
+
+- name: "Ensure permissions on /etc/motd are configured"
+  ansible.builtin.file:
+    path: /etc/motd
+    owner: root
+    group: root
+    mode: 'go-wx'
+  when: rhel9cis_rule_1_7_4
+
+- name: "Ensure permissions on /etc/issue are configured"
+  ansible.builtin.file:
+    path: /etc/issue
+    owner: root
+    group: root
+    mode: 'go-wx'
+  when: rhel9cis_rule_1_7_5
+
+- name: "Ensure permissions on /etc/issue.net are configured"
+  ansible.builtin.file:
+    path: /etc/issue.net
+    owner: root
+    group: root
+    mode: 'go-wx'
+  when: rhel9cis_rule_1_7_6

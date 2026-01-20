@@ -1,0 +1,105 @@
+---
+
+- name: "Ensure cron daemon is enabled"
+  ansible.builtin.service:
+    name: crond
+    enabled: true
+  when: rhel9cis_rule_2_4_1_1
+
+- name: "Ensure permissions on /etc/crontab are configured"
+  ansible.builtin.file:
+    path: /etc/crontab
+    owner: root
+    group: root
+    mode: 'og-rwx'
+  when: rhel9cis_rule_2_4_1_2
+
+- name: "Ensure permissions on /etc/cron.hourly are configured"
+  ansible.builtin.file:
+    path: /etc/cron.hourly
+    state: directory
+    owner: root
+    group: root
+    mode: 'og-rwx'
+  when: rhel9cis_rule_2_4_1_3
+
+
+- name: "Ensure permissions on /etc/cron.daily are configured"
+  ansible.builtin.file:
+    path: /etc/cron.daily
+    state: directory
+    owner: root
+    group: root
+    mode: 'og-rwx'
+  when: rhel9cis_rule_2_4_1_4
+
+- name: "Ensure permissions on /etc/cron.weekly are configured"
+  ansible.builtin.file:
+    path: /etc/cron.weekly
+    state: directory
+    owner: root
+    group: root
+    mode: 'og-rwx'
+  when: rhel9cis_rule_2_4_1_5
+
+- name: "Ensure permissions on /etc/cron.monthly are configured"
+  ansible.builtin.file:
+    path: /etc/cron.monthly
+    state: directory
+    owner: root
+    group: root
+    mode: 'og-rwx'
+  when: rhel9cis_rule_2_4_1_6
+
+- name: "Ensure permissions on /etc/cron.d are configured"
+  ansible.builtin.file:
+    path: /etc/cron.d
+    state: directory
+    owner: root
+    group: root
+    mode: 'og-rwx'
+  when: rhel9cis_rule_2_4_1_7
+
+- name: "Ensure crontab is restricted to authorized users"
+  block:
+    - name: "Ensure crontab is restricted to authorized users | Remove cron.deny"
+      ansible.builtin.file:
+        path: /etc/cron.deny
+        state: absent
+
+    - name: "Ensure crontab is restricted to authorized users | Check if cron.allow exists"
+      ansible.builtin.stat:
+        path: "/etc/cron.allow"
+      register: discovered_cron_allow_state
+
+    - name: "Ensure crontab is restricted to authorized users | Ensure cron.allow is restricted to authorized users"
+      ansible.builtin.file:
+        path: /etc/cron.allow
+        state: '{{ "file" if discovered_cron_allow_state.stat.exists else "touch" }}'
+        owner: root
+        group: root
+        mode: 'u-x,g-wx,o-rwx'
+  when: rhel9cis_rule_2_4_1_8
+
+
+- name: "Ensure at is restricted to authorized users"
+  block:
+    - name: "Ensure at is restricted to authorized users | Remove at.deny"
+      ansible.builtin.file:
+        path: /etc/at.deny
+        state: absent
+
+    - name: "Ensure at is restricted to authorized users | Check if at.allow exists"
+      ansible.builtin.stat:
+        path: "/etc/at.allow"
+      register: discovered_at_allow_state
+
+    - name: "Ensure at is restricted to authorized users | Ensure at.allow is restricted to authorized users"
+      ansible.builtin.file:
+        path: /etc/at.allow
+        state: '{{ "file" if discovered_at_allow_state.stat.exists else "touch" }}'
+        owner: root
+        group: root
+        mode: 'u-x,g-wx,o-rwx'
+  when: rhel9cis_rule_2_4_2_1
+

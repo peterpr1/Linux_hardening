@@ -1,0 +1,10 @@
+---
+- name: Hardening Enterprise Linux 9 servers (RedHat, Oracle)
+  hosts: all
+  become: true
+  gather_facts: true
+  serial: 1
+  tasks:
+    - name: Import role EL9_hardening
+      ansible.builtin.import_role:
+        name: EL9_hardening

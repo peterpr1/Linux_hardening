@@ -1,0 +1,278 @@
+---
+# handlers file for EL9_hardening
+# cis_1.1.2.1.x.yml
+- name: "Adding options for /tmp"
+  vars:
+    mount_point: '/tmp'
+  ansible.posix.mount:
+    path: "{{ mount_point }}"
+    src: "{{ prelim_mount_point_fs_and_options[mount_point]['src'] }}"
+    state: present
+    fstype: "{{ prelim_mount_point_fs_and_options[mount_point]['fs_type'] }}"
+    opts: "{{ prelim_mount_point_fs_and_options[mount_point]['options'] | unique | join(',') }}"
+  listen: "Remount /tmp"
+
+# cis_1.2.1.x.yml
+- name: "Remount /tmp"
+  vars:
+    mount_point: '/tmp'
+  ansible.posix.mount:
+    path: "{{ mount_point }}"
+    state: remounted
+  listen: "Remount /tmp"
+
+# cis_1.1.2.2.x.yml
+- name: "Adding required mount options for /dev/shm"
+  vars:
+    mount_point: '/dev/shm'
+  ansible.posix.mount:
+    path: "{{ mount_point }}"
+    src: "{{ prelim_mount_point_fs_and_options[mount_point]['src'] }}"
+    state: present
+    fstype: "{{ prelim_mount_point_fs_and_options[mount_point]['fs_type'] }}"
+    opts: "{{ prelim_mount_point_fs_and_options[mount_point]['options'] | unique | join(',') }}"
+  listen: "Remount /dev/shm"
+
+# cis_1.1.2.2.x.yml
+- name: "Remount /dev/shm"
+  vars:
+    mount_point: '/dev/shm'
+  ansible.posix.mount:
+    path: "{{ mount_point }}"
+    state: remounted
+  listen: "Remount /dev/shm"
+
+# cis_1.1.2.3.x.yml
+- name: "Adding required mount options for /home"
+  vars:
+    mount_point: '/home'
+  ansible.posix.mount:
+    path: "{{ mount_point }}"
+    src: "{{ prelim_mount_point_fs_and_options[mount_point]['src'] }}"
+    state: present
+    fstype: "{{ prelim_mount_point_fs_and_options[mount_point]['fs_type'] }}"
+    opts: "{{ prelim_mount_point_fs_and_options[mount_point]['options'] | unique | join(',') }}"
+  listen: "Remount /home"
+
+# cis_1.1.2.3.x.yml
+- name: "Remount /home"
+  vars:
+    mount_point: '/home'
+  ansible.posix.mount:
+    path: "{{ mount_point }}"
+    state: remounted
+  listen: "Remount /home"
+
+# cis_1.1.2.4.x.yml
+- name: "Adding required mount options for /var"
+  vars:
+    mount_point: '/var'
+  ansible.posix.mount:
+    path: "{{ mount_point }}"
+    src: "{{ prelim_mount_point_fs_and_options[mount_point]['src'] }}"
+    state: present
+    fstype: "{{ prelim_mount_point_fs_and_options[mount_point]['fs_type'] }}"
+    opts: "{{ prelim_mount_point_fs_and_options[mount_point]['options'] | unique | join(',') }}"
+  listen: "Remount /var"
+
+# cis_1.1.2.4.x.yml
+- name: "Remount /var"
+  vars:
+    mount_point: '/var'
+  ansible.posix.mount:
+    path: "{{ mount_point }}"
+    state: remounted
+  listen: "Remount /var"
+
+# cis_1.1.2.5.x.yml
+- name: "Adding required mount options for /var/tmp"
+  vars:
+    mount_point: '/var/tmp'
+  ansible.posix.mount:
+    path: "{{ mount_point }}"
+    src: "{{ prelim_mount_point_fs_and_options[mount_point]['src'] }}"
+    state: present
+    fstype: "{{ prelim_mount_point_fs_and_options[mount_point]['fs_type'] }}"
+    opts: "{{ prelim_mount_point_fs_and_options[mount_point]['options'] | unique | join(',') }}"
+  listen: "Remount /var/tmp"
+
+# cis_1.1.2.5.x.yml
+- name: "Remount /var/tmp"
+  vars:
+    mount_point: '/var/tmp'
+  ansible.posix.mount:
+    path: "{{ mount_point }}"
+    state: remounted
+  listen: "Remount /var/tmp"
+
+# cis_1.1.2.6.x.yml
+- name: "Adding required mount options for /var/log"
+  vars:
+    mount_point: '/var/log'
+  ansible.posix.mount:
+    path: "{{ mount_point }}"
+    src: "{{ prelim_mount_point_fs_and_options[mount_point]['src'] }}"
+    state: present
+    fstype: "{{ prelim_mount_point_fs_and_options[mount_point]['fs_type'] }}"
+    opts: "{{ prelim_mount_point_fs_and_options[mount_point]['options'] | unique | join(',') }}"
+  listen: "Remount /var/log"
+
+# cis_1.1.2.6.x.yml
+- name: "Remount /var/log"
+  vars:
+    mount_point: '/var/log'
+  ansible.posix.mount:
+    path: "{{ mount_point }}"
+    state: remounted
+  listen: "Remount /var/log"
+
+# cis_1.1.2.7.x.yml
+- name: "Adding required mount options for /var/log/audit"
+  vars:
+    mount_point: '/var/log/audit'
+  ansible.posix.mount:
+    path: "{{ mount_point }}"
+    src: "{{ prelim_mount_point_fs_and_options[mount_point]['src'] }}"
+    state: present
+    fstype: "{{ prelim_mount_point_fs_and_options[mount_point]['fs_type'] }}"
+    opts: "{{ prelim_mount_point_fs_and_options[mount_point]['options'] | unique | join(',') }}"
+  listen: "Remount /var/log/audit"
+
+# cis_1.1.2.7.x.yml
+- name: "Remount /var/log/audit"
+  vars:
+    mount_point: '/var/log/audit'
+  ansible.posix.mount:
+    path: "{{ mount_point }}"
+    state: remounted
+  listen: "Remount /var/log/audit"
+
+# cis_1.4.x.yml
+- name: "Remount /boot/efi"
+  vars:
+    mount_point: '/boot/efi'
+  ansible.posix.mount:
+    path: "{{ mount_point }}"
+    state: remounted
+  listen: "Remount /boot/efi"
+
+# cis_1.5.x.yml
+- name: Reload sysctl
+  ansible.builtin.command: sysctl --system
+  changed_when: true
+  listen: Reload sysctl
+
+- name: Sysctl flush ipv4 route table
+  when:
+    - rhel9cis_flush_ipv4_route
+  ansible.posix.sysctl:
+    name: net.ipv4.route.flush
+    value: '1'
+    sysctl_set: true
+  ignore_errors: true 
+
+- name: Sysctl flush ipv6 route table
+  when:
+    - rhel9cis_flush_ipv6_route
+  ansible.posix.sysctl:
+    name: net.ipv6.route.flush
+    value: '1'
+    sysctl_set: true
+
+- name: Systemd restart tmp.mount
+  ansible.builtin.systemd:
+    name: tmp.mount
+    daemon_reload: true
+    enabled: true
+    masked: false
+    state: reloaded
+
+# cis_1.6.x.yml
+- name: Set Crypto Policy
+  ansible.builtin.command: update-crypto-policies --set "{{ rhel9cis_crypto_policy + ':' + rhel9cis_crypto_policy_module}}"
+  changed_when: true
+  notify:
+    - Change_requires_reboot
+    - Restart sshd
+  listen: Set Crypto Policy
+
+- name: Restart firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    state: restarted
+
+# cis_1.6.x.yml
+- name: Restart sshd
+  ansible.builtin.systemd:
+    name: sshd
+    state: restarted
+
+# cis_2.
+- name: Restart postfix
+  ansible.builtin.systemd:
+    name: postfix
+    state: restarted
+
+# cis_1.8.x.yml
+- name: Reload dconf
+  ansible.builtin.command: dconf update
+  changed_when: true
+
+# cis_1.3.1.x.yml
+- name: Grub2cfg
+  ansible.builtin.command: "grub2-mkconfig -o /boot/grub2/grub.cfg"
+  changed_when: true
+  ignore_errors: true
+
+- name: Restart rsyslog
+  ansible.builtin.systemd:
+    name: rsyslog
+    state: restarted
+
+- name: Restart journald
+  ansible.builtin.systemd:
+    name: systemd-journald
+    state: restarted
+
+- name: Restart systemd_journal_upload
+  ansible.builtin.systemd:
+    name: systemd-journal-upload
+    state: restarted
+
+# cis_1.5.x.yml, ...
+- name: Systemd daemon reload
+  ansible.builtin.systemd:
+    daemon-reload: true
+  changed_when: true
+
+- name: Authselect update
+  ansible.builtin.command: authselect apply-changes
+  changed_when: true
+
+## Auditd tasks note order for handlers to run
+
+- name: Auditd immutable check
+  ansible.builtin.command: grep -c "^-e 2" /etc/audit/rules.d/99_auditd.rules
+  changed_when: false
+  register: discovered_auditd_immutable_check
+
+- name: Audit immutable fact
+  when: discovered_auditd_immutable_check.stdout == '1'
+  ansible.builtin.debug:
+    msg: "Reboot required for auditd to apply new rules as immutable set"
+  notify: Change_requires_reboot
+
+- name: Stop auditd process
+  ansible.builtin.command: systemctl kill auditd
+  changed_when: true
+  listen: Restart auditd
+
+- name: Start auditd process
+  ansible.builtin.systemd:
+    name: auditd
+    state: started
+  listen: Restart auditd
+
+- name: Change_requires_reboot
+  ansible.builtin.set_fact:
+    change_requires_reboot: true

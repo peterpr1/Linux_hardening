@@ -1,0 +1,71 @@
+---
+- name: Create AIDE directory structure.
+  ansible.builtin.file:
+    path: /srv/AIDE/Reports
+    state: directory
+    recurse: yes
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Create AIDE report script.
+  ansible.builtin.copy:
+    src: aide_report.sh
+    dest: /srv/AIDE/
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Set DBDIR to /srv/AIDE in AIDE configuration file.
+  ansible.builtin.lineinfile:
+    path: /etc/aide.conf
+    regexp: '^@@define DBDIR'
+    line: '@@define DBDIR /srv/AIDE'
+
+- name: Add additional exclusions and rules to AIDE configuration file.
+  ansible.builtin.blockinfile:
+    path: /etc/aide.conf
+    block: |
+        !/bin/mail
+        !/bin/Mail
+        !/usr/bin/mail*
+        !/usr/bin/Mail*
+        !/usr/share/doc
+        !/usr/share/man
+        /sbin/auditctl p+i+n+u+g+s+b+acl+xattrs+sha512
+        /sbin/auditd p+i+n+u+g+s+b+acl+xattrs+sha512
+        /sbin/ausearch p+i+n+u+g+s+b+acl+xattrs+sha512
+        /sbin/aureport p+i+n+u+g+s+b+acl+xattrs+sha512
+        /sbin/autrace p+i+n+u+g+s+b+acl+xattrs+sha512
+        /sbin/augenrules p+i+n+u+g+s+b+acl+xattrs+sha512
+
+- name: Initialize new AIDE database.
+  ansible.builtin.command: /sbin/aide --init
+
+- name: Verify if new AIDE database file was created.
+  ansible.builtin.stat:
+    path: /srv/AIDE/aide.db.new.gz
+  register: new_database
+
+- name: Set new AIDE database as active.
+  ansible.builtin.copy:
+    remote_src: yes
+    src: /srv/AIDE/aide.db.new.gz
+    dest: /srv/AIDE/aide.db.gz 
+  when: new_database.stat.exists 
+
+- name: Remove new AIDE database file created during initialization.
+  ansible.builtin.file:
+    path: /srv/AIDE/aide.db.new.gz
+    state: absent
+  when: new_database.stat.exists 
+
+- name: Create cron job to run daily AIDE report.
+  ansible.builtin.cron:
+    name: "AIDE daily reports"
+    minute: "30"
+    hour: "23"
+    job: "/srv/AIDE/aide_report.sh"
+    
+- name: Run AIDE report script.
+  ansible.builtin.command: bash /srv/AIDE/aide_report.sh

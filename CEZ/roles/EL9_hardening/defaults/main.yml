@@ -1,0 +1,580 @@
+---
+# Definition of the environment for which the server is configured.
+# This value affects the default configurations for selected services.
+# Available options are listed in the "ENVIRONMENTS_LIST" variable.
+# If a non-existent environment is entered here, it will default to "CEZ".
+SERVER_ENVIRONMENT: "CEZ"
+
+
+# List of available environments. The script uses this to verify the correctness of the "SERVER_ENVIRONMENT" variable.
+ENVIRONMENTS_LIST:
+  - "CEZ"
+  - "P2_PROD"
+  - "P2_TEST"
+  - "P2_EVA"
+  - "P4_PROD"
+  - "P4_TEST"
+  - "P4_EVA"
+  - "COPD_PROD"
+  - "COPD_TEST"
+  - "COPD_EVA"
+  - "COPD_ACC"
+  - "ZOPD_PROD"
+  - "ZOPD_TEST"
+  - "ZOPD_EVA"
+  - "ZOPD_ACC"
+
+
+# Switches defining whether the script should set default values for specific services, based on the selected environment.
+# By default, the script will only verify the configurations for the selected services.
+# Setting the value to "true" will cause the script to configure the service with default values.
+CONFIGURE_NTP: true
+CONFIGURE_PROXY: false
+CONFIGURE_ZABBIX: false
+
+# Setting the SELinux policy type for the system.
+rhel9cis_selinux_pol: targeted
+
+# Setting the SELinux policy enforcement mode for the system.
+rhel9cis_selinux_enforce: enforcing
+
+# Setting the system-wide crypto policy.
+rhel9cis_crypto_policy: FUTURE
+
+# This variable is used in a pre task, handling grub2 paths either in case of
+# UEFI boot('/etc/grub2-efi.cfg') or in case of BIOS legacy-boot('/etc/grub2.cfg').
+rhel9cis_legacy_boot: false
+
+#================================================================================================================
+##                         Switching on/off specific baseline sections for RHEL9                               ##   
+#================================================================================================================
+
+# These variables govern whether the tasks of a particular section are to be executed when running the role.
+# E.g: If you want to execute the tasks of Section 1 you should set the "_section1" variable to true.
+# If you do not want the tasks from that section to get executed you simply set the variable to "false".
+# Some sections support sub-section modularization. The super-section and sub-section must both be true
+# for the sub-section to execute.
+rhel9cis_section1: false
+rhel9cis_section2: true
+rhel9cis_section3: true
+rhel9cis_section4: true
+rhel9cis_section5: true
+rhel9cis_section5_1: true
+rhel9cis_section5_2: true
+rhel9cis_section5_3: true
+rhel9cis_section5_4: true
+rhel9cis_section6: true
+rhel9cis_section7: true
+
+
+# These variables correspond with the CIS rule IDs or paragraph numbers defined in the CIS benchmark documents.
+# PLEASE NOTE: 
+# You must enable an entire section in order for the variables below to take effect.
+
+## Section 1 Fixes
+# Section 1 is Initial setup (FileSystem Configuration, Configure Software Updates, Filesystem Integrity Checking, Secure Boot Settings,
+# Additional Process Hardening, Mandatory Access Control, Command Line Warning Banners, and GNOME Display Manager)
+
+# Filesystem kernel modules
+rhel9cis_rule_1_1_1_1: true  # Disable cramfs kernel module
+rhel9cis_rule_1_1_1_2: true  # Disable freevxfs kernel module
+rhel9cis_rule_1_1_1_3: true  # Disable hfs kernel module
+rhel9cis_rule_1_1_1_4: true  # Disable hfsplus kernel module
+rhel9cis_rule_1_1_1_5: true  # Disable jffs2 kernel module
+rhel9cis_rule_1_1_1_6: true  # Disable squashfs kernel module
+rhel9cis_rule_1_1_1_7: true  # Disable udf kernel module
+rhel9cis_rule_1_1_1_8: true  # Disable usb-storage kernel module
+rhel9cis_rule_1_1_1_9: true  # Disable firewire-core kernel module
+rhel9cis_rule_1_1_1_10: true  # Ensure unused kernel file system modules are not available
+# Filesystems
+# /tmp
+rhel9cis_rule_1_1_2_1_1: true  # Rule to ensure /tmp is a separate partition
+rhel9cis_rule_1_1_2_1_2: true  # Ensure nodev option is set on /tmp partition if separate partition exists
+rhel9cis_rule_1_1_2_1_3: true  # Ensure nosuid option is set on /tmp partition if separate partition exists
+rhel9cis_rule_1_1_2_1_4: true  # Ensure noexec option is set on /tmp partition if separate partition exists
+# /dev/shm
+rhel9cis_rule_1_1_2_2_1: true  # Rule to ensure /dev/shm is a separate partition
+rhel9cis_rule_1_1_2_2_2: true  # Ensure nodev option is set on /dev/shm partition if separate partition exists
+rhel9cis_rule_1_1_2_2_3: true  # Ensure nosuid option is set on /dev/shm partition if separate partition exists
+rhel9cis_rule_1_1_2_2_4: true  # Ensure noexec option is set on /dev/shm partition if separate partition exists
+# /home
+rhel9cis_rule_1_1_2_3_1: true  # Rule to ensure /home is a separate partition
+rhel9cis_rule_1_1_2_3_2: true  # Ensure nodev option is set on /home partition if separate partition exists
+rhel9cis_rule_1_1_2_3_3: true  # Ensure nosuid option is set on /home partition if separate partition exists
+# /var
+rhel9cis_rule_1_1_2_4_1: true  # Rule to ensure /var is a separate partition
+rhel9cis_rule_1_1_2_4_2: true  # Ensure nodev option is set on /var partition if separate partition exists
+rhel9cis_rule_1_1_2_4_3: true  # Ensure nosuid option is set on /var partition if separate partition exists
+# /var/tmp
+rhel9cis_rule_1_1_2_5_1: true  # Rule to ensure /var/tmp is a separate partition
+rhel9cis_rule_1_1_2_5_2: true  # Ensure nodev option is set on /var/tmp partition if separate partition exists
+rhel9cis_rule_1_1_2_5_3: true  # Ensure nosuid option is set on /var/tmp partition if separate partition exists
+rhel9cis_rule_1_1_2_5_4: true  # Ensure noexec option is set on /var/tmp partition if separate partition exists 
+# /var/log
+rhel9cis_rule_1_1_2_6_1: true  # Rule to ensure /var/log is a separate partition
+rhel9cis_rule_1_1_2_6_2: true  # Enable nodev option on /var/log partition if separate partition exists
+rhel9cis_rule_1_1_2_6_3: true  # Enable nosuid option on /var/log partition if separate partition exists
+rhel9cis_rule_1_1_2_6_4: true  # Enable noexec option on /var/log partition if separate partition exists
+# /var/log/audit
+rhel9cis_rule_1_1_2_7_1: true  # Rule to ensure /var/log/audit is a separate partition
+rhel9cis_rule_1_1_2_7_2: true  # Enable nodev option on /var/log/audit partition if separate partition exists
+rhel9cis_rule_1_1_2_7_3: true  # Enable nosuid option on /var/log/audit partition if separate partition exists
+rhel9cis_rule_1_1_2_7_4: true  # Enable noexec option on /var/log/audit partition if separate partition exists
+# Package Mgmt
+# Config Pkg Repos
+rhel9cis_rule_1_2_1_1: true  # Ensure RHEL GPG key is installed
+rhel9cis_rule_1_2_1_2: true  # Ensure gpgcheck is globally enabled
+rhel9cis_rule_1_2_1_3: true  # Ensure repo_gpgcheck is globally enabled
+rhel9cis_rule_1_2_1_4: true  # Ensure package manager repositories are configured
+# Package updates
+rhel9cis_rule_1_2_2_1: true  # Update whole system with latest patches and security updates
+# Selinux
+rhel9cis_rule_1_3_1_1: true  # Ensure SELinux is installed
+rhel9cis_rule_1_3_1_2: true  # Ensure SELinux is enabled in the bootloader configuration
+rhel9cis_rule_1_3_1_3_5: true  # Merged rules from 1_3_1_3 to 1_3_1_5 into one rule to set selinux mode and policy
+rhel9cis_rule_1_3_1_6: true  # Ensure no unconfined services exist
+rhel9cis_rule_1_3_1_7: true  # Ensure MCS Translation Service (mcstrans) is not installed
+rhel9cis_rule_1_3_1_8: true  # Ensure SETroubleshoot is not installed
+# Bootloader
+rhel9cis_rule_1_4_1: true  # Ensure bootloader password is set
+rhel9cis_rule_1_4_2: true  # Ensure bootloader configuration file permissions are set
+# Additional Process Hardening
+rhel9cis_rule_1_5_1_2: true  # Configuring ASLR and ptrace_scope kernel params - IDs 1.5.1 and 1.5.2
+rhel9cis_rule_1_5_3: true  # Ensure core dump backtraces are disabled
+rhel9cis_rule_1_5_4: true  # Ensure core dump storage is disabled
+# Config system wide Crypto
+rhel9cis_rule_1_6_x: true   # Enables all 1.6.x rules by setting crypto policy to FUTURE and adding MIN-RSA module that allows 2048 bit keys (RSA,DH,DSA witch by default are set to 3072 bits in FUTURE policy)
+# Command line warning banners
+rhel9cis_rule_1_7_1: true  # Ensure message of the day is configured properly
+rhel9cis_rule_1_7_2: true  # Ensure local login warning banner is configured properly
+rhel9cis_rule_1_7_3: true  # Ensure remote login warning banner is configured properly
+rhel9cis_rule_1_7_4: true  # Ensure permissions on /etc/motd are configured
+rhel9cis_rule_1_7_5: true  # Ensure permissions on /etc/issue are configured
+rhel9cis_rule_1_7_6: true  # Ensure permissions on /etc/issue.net are configured
+# Gnome Display Manager - Run when using Gnome Desktop Environment
+rhel9cis_rule_1_8_1: false
+rhel9cis_rule_1_8_2: false
+rhel9cis_rule_1_8_3: false
+rhel9cis_rule_1_8_4: false
+rhel9cis_rule_1_8_5: false
+rhel9cis_rule_1_8_6: false
+rhel9cis_rule_1_8_7: false
+rhel9cis_rule_1_8_8: false
+rhel9cis_rule_1_8_9: false
+rhel9cis_rule_1_8_10: false
+
+## Section 2 Fixes
+# Section 2 rules are controlling Services (Special Purpose Services, and service clients)
+# Configure Server Services
+rhel9cis_rule_2_1_1: true  # Ensure autofs services are not in use
+rhel9cis_rule_2_1_2: true  # Ensure avahi-daemon service is not in use
+rhel9cis_rule_2_1_3: true  # Ensure dhcp server service is not in use
+rhel9cis_rule_2_1_4: true  # Ensure dns server service is not in use 
+rhel9cis_rule_2_1_5: true  # Ensure dnsmasq server service is not in use
+rhel9cis_rule_2_1_6: true  # Ensure samba server service is not in use
+rhel9cis_rule_2_1_7: true  # Ensure ftp server service is not in use
+rhel9cis_rule_2_1_8: true  # Ensure message access server service is not in use
+rhel9cis_rule_2_1_9: true  # Ensure nfs server services are not in use
+rhel9cis_rule_2_1_10: true # Ensure nis server service is not in use
+rhel9cis_rule_2_1_11: true # Ensure print server service is not in use
+rhel9cis_rule_2_1_12: true # Ensure rpcbind server services are not in use
+rhel9cis_rule_2_1_13: true # Ensure rsync services are not in use
+rhel9cis_rule_2_1_14: true # Ensure snmp server service is not in use
+rhel9cis_rule_2_1_15: true # Ensure telnet server service is not in use
+rhel9cis_rule_2_1_16: true # Ensure tftp server service is not in use
+rhel9cis_rule_2_1_17: true # Ensure web server service is not in use - nginx
+rhel9cis_rule_2_1_18: true # Ensure web server service is not in use - httpd
+rhel9cis_rule_2_1_19: true # Ensure xinetd service is not in use
+rhel9cis_rule_2_1_20: true # Ensure x window server service is not in use
+rhel9cis_rule_2_1_21: true # Ensure mail transfer agent is configured for local-only mode
+rhel9cis_rule_2_1_22: true # Ensure only approved services are running
+# Configure Client Services
+rhel9cis_rule_2_2_1: true  # Ensure ftp client is not installed
+rhel9cis_rule_2_2_2: true  # Ensure ldap client is not installed
+rhel9cis_rule_2_2_3: true  # Ensure nis client is not installed
+rhel9cis_rule_2_2_4: true  # Ensure telnet client is not installed
+rhel9cis_rule_2_2_5: true  # Ensure TFTP client is not installed
+# Configure Time Synchronization
+# Rules 2.3.1 and 2.3.2 are covered in NTP configuration task file
+rhel9cis_rule_2_3_3: true  # Ensure chrony is not run as the root user
+# Job Schedulers
+# cron
+rhel9cis_rule_2_4_1_1: true  # Ensure cron daemon is enabled
+rhel9cis_rule_2_4_1_2: true  # Ensure permissions on /etc/crontab are configured
+rhel9cis_rule_2_4_1_3: true  # Ensure permissions on /etc/cron.hourly are configured
+rhel9cis_rule_2_4_1_4: true  # Ensure permissions on /etc/cron.daily are configured
+rhel9cis_rule_2_4_1_5: true  # Ensure permissions on /etc/cron.weekly are configured
+rhel9cis_rule_2_4_1_6: true  # Ensure permissions on /etc/cron.monthly are configured
+rhel9cis_rule_2_4_1_7: true  # Ensure permissions on /etc/cron.d are configured
+rhel9cis_rule_2_4_1_8: true  # Ensure crontab is restricted to authorized users
+# at
+rhel9cis_rule_2_4_2_1: true  # Ensure at is restricted to authorized users
+
+## Section 3 Fixes
+# Section 3 rules are used for securely configuring the network configuration(kernel params, ACL, Firewall settings)
+# Network Devices
+rhel9cis_rule_3_1_1: true
+rhel9cis_rule_3_1_2: true
+rhel9cis_rule_3_1_3: true
+# Network Kernel Modules
+rhel9cis_rule_3_2_1: true
+rhel9cis_rule_3_2_2: true
+rhel9cis_rule_3_2_3: true
+rhel9cis_rule_3_2_4: true
+# Network Kernel Parameters
+rhel9cis_rule_3_3_1: true
+rhel9cis_rule_3_3_2: true
+rhel9cis_rule_3_3_3: true
+rhel9cis_rule_3_3_4: true
+rhel9cis_rule_3_3_5: true
+rhel9cis_rule_3_3_6: true
+rhel9cis_rule_3_3_7: true
+rhel9cis_rule_3_3_8: true
+rhel9cis_rule_3_3_9: true
+rhel9cis_rule_3_3_10: true
+rhel9cis_rule_3_3_11: true
+
+## Section 4 Fixes
+# Section 4 rules are Logging and Auditing (Configure System Accounting (auditd),
+# Configure Data Retention, and Configure Logging)
+# Firewall utility
+rhel9cis_rule_4_1_1: true
+rhel9cis_rule_4_1_2: true
+# Configure firewalld
+rhel9cis_rule_4_2_1: true
+rhel9cis_rule_4_2_2: true
+# Configure nftables
+rhel9cis_rule_4_3_1: true
+rhel9cis_rule_4_3_2: true
+rhel9cis_rule_4_3_3: true
+rhel9cis_rule_4_3_4: true
+
+## Section 5 Fixes
+# Section 5 rules control Access, Authentication, and Authorization (Configure time-based job schedulers,
+# Configure sudo, Configure SSH Server, Configure PAM and User Accounts and Environment)
+# Configure SSH Server
+rhel9cis_rule_5_1_1: true
+rhel9cis_rule_5_1_2: true
+rhel9cis_rule_5_1_3: true
+rhel9cis_rule_5_1_4: true
+rhel9cis_rule_5_1_5: true
+rhel9cis_rule_5_1_6: true
+rhel9cis_rule_5_1_7: true
+rhel9cis_rule_5_1_8: true
+rhel9cis_rule_5_1_9: true
+rhel9cis_rule_5_1_10: true
+rhel9cis_rule_5_1_11: true
+rhel9cis_rule_5_1_12: true
+rhel9cis_rule_5_1_13: true
+rhel9cis_rule_5_1_14: true
+rhel9cis_rule_5_1_15: true
+rhel9cis_rule_5_1_16: true
+rhel9cis_rule_5_1_17: true
+rhel9cis_rule_5_1_18: true
+rhel9cis_rule_5_1_19: true
+rhel9cis_rule_5_1_20: true
+rhel9cis_rule_5_1_21: true
+rhel9cis_rule_5_1_22: true
+# 5.2 Configure Privilege Escalation
+rhel9cis_rule_5_2_1: true
+rhel9cis_rule_5_2_2: true
+rhel9cis_rule_5_2_3: true
+rhel9cis_rule_5_2_4: true
+rhel9cis_rule_5_2_5: true
+rhel9cis_rule_5_2_6: true
+rhel9cis_rule_5_2_7: true
+# 5.3.1.x Configure PAM software packages
+rhel9cis_rule_5_3_1_1: true
+rhel9cis_rule_5_3_1_2: true
+rhel9cis_rule_5_3_1_3: true
+# 5.3.2 Configure authselect
+rhel9cis_rule_5_3_2_1: true
+rhel9cis_rule_5_3_2_2: true
+rhel9cis_rule_5_3_2_3: true
+rhel9cis_rule_5_3_2_4: true
+rhel9cis_rule_5_3_2_5: true
+# 5.3.3.1 Configure pam_faillock module
+rhel9cis_rule_5_3_3_1_1: true
+rhel9cis_rule_5_3_3_1_2: true
+rhel9cis_rule_5_3_3_1_3: true
+# 5.3.3.2 Configure pam_pwquality module
+rhel9cis_rule_5_3_3_2_1: true
+rhel9cis_rule_5_3_3_2_2: true
+rhel9cis_rule_5_3_3_2_3: true
+rhel9cis_rule_5_3_3_2_4: true
+rhel9cis_rule_5_3_3_2_5: true
+rhel9cis_rule_5_3_3_2_6: true
+rhel9cis_rule_5_3_3_2_7: true
+rhel9cis_rule_5_3_3_2_8: true
+# 5.3.3.3 Configure pam_pwhistory module
+# These are added as part of 5.3.2.4 using jinja2 template
+rhel9cis_rule_5_3_3_3_1: true
+rhel9cis_rule_5_3_3_3_2: true
+rhel9cis_rule_5_3_3_3_3: true
+# 5.3.3.4 Configure pam_unix module
+rhel9cis_rule_5_3_3_4_1: true
+rhel9cis_rule_5_3_3_4_2: true
+rhel9cis_rule_5_3_3_4_3: true
+rhel9cis_rule_5_3_3_4_4: true
+# 5.4 User Accounts and Environment
+# 5.4.1 Configure shadow password suite parameters
+rhel9cis_rule_5_4_1_1: true
+rhel9cis_rule_5_4_1_2: true
+rhel9cis_rule_5_4_1_3: true
+rhel9cis_rule_5_4_1_4: true
+rhel9cis_rule_5_4_1_5: true
+rhel9cis_rule_5_4_1_6: true
+# 5.4.2 Configure root and system accounts and environment
+rhel9cis_rule_5_4_2_1: true
+rhel9cis_rule_5_4_2_2: true
+rhel9cis_rule_5_4_2_3: true
+rhel9cis_rule_5_4_2_4: true
+rhel9cis_rule_5_4_2_5: true
+rhel9cis_rule_5_4_2_6: true
+rhel9cis_rule_5_4_2_7: true
+rhel9cis_rule_5_4_2_8: true
+# 5.4.2 Configure user default environment
+rhel9cis_rule_5_4_3_1: true
+rhel9cis_rule_5_4_3_2: true
+rhel9cis_rule_5_4_3_3: true
+
+## Section 6 Fixes
+# Section 6 rules control Logging and Auditing
+# Configure Integrity Checking
+rhel9cis_rule_6_1_1: true
+rhel9cis_rule_6_1_2: true
+rhel9cis_rule_6_1_3: true
+# 6.2.1 Configure systemd-journald service
+rhel9cis_rule_6_2_1_1: true
+rhel9cis_rule_6_2_1_2: true
+rhel9cis_rule_6_2_1_3: true
+rhel9cis_rule_6_2_1_4: true
+# 6.2.2.x Configure journald
+rhel9cis_rule_6_2_2_1_1: true
+rhel9cis_rule_6_2_2_1_2: true
+rhel9cis_rule_6_2_2_1_3: true
+rhel9cis_rule_6_2_2_1_4: true
+rhel9cis_rule_6_2_2_2: true
+rhel9cis_rule_6_2_2_3: true
+rhel9cis_rule_6_2_2_4: true
+# 6.2.3 Configure rsyslog
+rhel9cis_rule_6_2_3_1: true
+rhel9cis_rule_6_2_3_2: true
+rhel9cis_rule_6_2_3_3: true
+rhel9cis_rule_6_2_3_4: true
+rhel9cis_rule_6_2_3_5: true
+rhel9cis_rule_6_2_3_6: true
+rhel9cis_rule_6_2_3_7: true
+rhel9cis_rule_6_2_3_8: true
+# 6.2.4 Configure Logfiles
+rhel9cis_rule_6_2_4_1: true
+# 6.3 Configure Auditing
+# 6.3.1 Configure auditd Service
+rhel9cis_rule_6_3_1_1: true
+rhel9cis_rule_6_3_1_2: true
+rhel9cis_rule_6_3_1_3: true
+rhel9cis_rule_6_3_1_4: true
+# 6.3.2 Configure Data Retention
+rhel9cis_rule_6_3_2_1: true
+rhel9cis_rule_6_3_2_2: true
+rhel9cis_rule_6_3_2_3: true
+rhel9cis_rule_6_3_2_4: true
+# 6.3.3 Configure auditd Rules
+rhel9cis_rule_6_3_3_1: true
+rhel9cis_rule_6_3_3_2: true
+rhel9cis_rule_6_3_3_3: true
+rhel9cis_rule_6_3_3_4: true
+rhel9cis_rule_6_3_3_5: true
+rhel9cis_rule_6_3_3_6: true
+rhel9cis_rule_6_3_3_7: true
+rhel9cis_rule_6_3_3_8: true
+rhel9cis_rule_6_3_3_9: true
+rhel9cis_rule_6_3_3_10: true
+rhel9cis_rule_6_3_3_11: true
+rhel9cis_rule_6_3_3_12: true
+rhel9cis_rule_6_3_3_13: true
+rhel9cis_rule_6_3_3_14: true
+rhel9cis_rule_6_3_3_15: true
+rhel9cis_rule_6_3_3_16: true
+rhel9cis_rule_6_3_3_17: true
+rhel9cis_rule_6_3_3_18: true
+rhel9cis_rule_6_3_3_19: true
+rhel9cis_rule_6_3_3_20: true
+rhel9cis_rule_6_3_3_21: true
+# 6.3.4 Configure auditd File Access
+rhel9cis_rule_6_3_4_1: true
+rhel9cis_rule_6_3_4_2: true
+rhel9cis_rule_6_3_4_3: true
+rhel9cis_rule_6_3_4_4: true
+rhel9cis_rule_6_3_4_5: true
+rhel9cis_rule_6_3_4_6: true
+rhel9cis_rule_6_3_4_7: true
+rhel9cis_rule_6_3_4_8: true
+rhel9cis_rule_6_3_4_9: true
+rhel9cis_rule_6_3_4_10: true
+
+## Section 7 Fixes
+# Section 7 rules control System Maintenance
+# System File Permissions
+rhel9cis_rule_7_1_1: true
+rhel9cis_rule_7_1_2: true
+rhel9cis_rule_7_1_3: true
+rhel9cis_rule_7_1_4: true
+rhel9cis_rule_7_1_5: true
+rhel9cis_rule_7_1_6: true
+rhel9cis_rule_7_1_7: true
+rhel9cis_rule_7_1_8: true
+rhel9cis_rule_7_1_9: true
+rhel9cis_rule_7_1_10: true
+rhel9cis_rule_7_1_11: true
+rhel9cis_rule_7_1_12: true
+rhel9cis_rule_7_1_13: true
+# 7.2 Local User and Group Settings
+rhel9cis_rule_7_2_1: true
+rhel9cis_rule_7_2_2: true
+rhel9cis_rule_7_2_3: true
+rhel9cis_rule_7_2_4: true
+rhel9cis_rule_7_2_5: true
+rhel9cis_rule_7_2_6: true
+rhel9cis_rule_7_2_7: true
+rhel9cis_rule_7_2_8: true
+rhel9cis_rule_7_2_9: true
+
+# --------------------------------------------------- End of sections switches ---------------------------------------------------------- #
+
+## Control 1.8.x - Settings for GDM
+# do not run Control 1.8.x if using a display manager different than gdm
+rhel9cis_display_manager: "gdm"
+
+# This variable governs whether rules dealing with GUI specific packages(and/or their settings) should
+# be executed either to:
+# - secure GDM, if GUI is needed('rhel9cis_gui: true')
+# - or remove GDM and X-Windows-system, if no GUI is needed('rhel9cis_gui: false')
+# The value of this variable is set automatically, if gnome is present this variable
+# will always have `true` as a value, and `false` otherwise.
+rhel9cis_gui: "{{ prelim_gnome_present.stat.exists | default(false) }}"
+
+# This variable specifies the GNOME configuration database file to which configurations are written.
+# (See "https://help.gnome.org/admin/system-admin-guide/stable/dconf-keyfiles.html.en")
+# The default database is 'local'.
+rhel9cis_dconf_db_name: local
+
+# This variable  stores the content for the Warning Banner when Gnome GUI is used. 
+rhel9cis_warning_banner: Authorized users only. All activity may be monitored and reported.
+
+# This variable governs the number of seconds of inactivity before the screen goes blank.
+# Set max value for idle-delay in seconds (between 1 and 900)
+rhel9cis_screensaver_idle_delay: 900
+
+# This variable governs the number of seconds the screen remains blank before it is locked.
+# Set max value for lock-delay in seconds (between 0 and 5)
+rhel9cis_screensaver_lock_delay: 5
+
+###########################################
+
+## Controls 2.1.x - Configure Server Services
+# Set this variable to `true` to keep service `autofs`; otherwise, the service is uninstalled.
+rhel9cis_autofs_services: false
+# Set this variable to `true` to mask service `autofs`.
+rhel9cis_autofs_mask: false
+# Set this variable to `true` to keep service `avahi`; otherwise, the service is uninstalled.
+rhel9cis_avahi_server: false
+# Set this variable to `true` to mask service `avahi`.
+rhel9cis_avahi_mask: false
+# Set this variable to `true` to keep service `dhcp`; otherwise, the service is uninstalled.
+rhel9cis_dhcp_server: false
+# Set this variable to `true` to mask service `dhcp`.
+rhel9cis_dhcp_mask: false
+# Set this variable to `true` to keep service `dns`; otherwise, the service is uninstalled.
+rhel9cis_dns_server: false
+# Set this variable to `true` to mask service `dns`.
+rhel9cis_dns_mask: false
+# Set this variable to `true` to keep service `dnsmasq`; otherwise, the service is uninstalled.
+rhel9cis_dnsmasq_server: false
+# Set this variable to `true` to mask service `dnsmasq`.
+rhel9cis_dnsmasq_mask: false
+# Set this variable to `true` to keep service `samba`; otherwise, the service is uninstalled.
+rhel9cis_samba_server: false
+# Set this variable to `true` to mask service `samba`.
+rhel9cis_samba_mask: false
+# Set this variable to `true` to keep service `ftp`; otherwise, the service is uninstalled.
+rhel9cis_ftp_server: false
+# Set this variable to `true` to mask service `ftp`.
+rhel9cis_ftp_mask: false
+# Set this variable to `true` to keep service `message`; otherwise, the service is uninstalled.
+rhel9cis_message_server: false  # This is for messaging dovecot and cyrus-imap
+# Set this variable to `true` to mask service `message`.
+rhel9cis_message_mask: false
+# Set this variable to `true` to keep service `nfs`; otherwise, the service is uninstalled.
+rhel9cis_nfs_server: true
+# Set this variable to `true` to mask service `nfs`.
+rhel9cis_nfs_mask: true
+# Set this variable to `true` to keep service `nis`; otherwise, the service is uninstalled.
+rhel9cis_nis_server: true  # set to mask if nis client required
+# Set this variable to `true` to mask service `nis`.
+rhel9cis_nis_mask: false
+# Set this variable to `true` to keep service `print`; otherwise, the service is uninstalled.
+rhel9cis_print_server: false  # replaces cups
+# Set this variable to `true` to mask service `print`.
+rhel9cis_print_mask: false
+# Set this variable to `true` to keep service `rpc`; otherwise, the service is uninstalled.
+rhel9cis_rpc_server: true
+# Set this variable to `true` to mask service `rpc`.
+rhel9cis_rpc_mask: true
+# Set this variable to `true` to keep service `rsync`; otherwise, the service is uninstalled.
+rhel9cis_rsync_server: false
+# Set this variable to `true` to mask service `rsync`.
+rhel9cis_rsync_mask: false
+# Set this variable to `true` to keep service `snmp`; otherwise, the service is uninstalled.
+rhel9cis_snmp_server: false
+# Set this variable to `true` to mask service `snmp`.
+rhel9cis_snmp_mask: false
+# Set this variable to `true` to keep service `telnet`; otherwise, the service is uninstalled.
+rhel9cis_telnet_server: false
+# Set this variable to `true` to mask service `telnet`.
+rhel9cis_telnet_mask: false
+# Set this variable to `true` to keep service `tftp`; otherwise, the service is uninstalled.
+rhel9cis_tftp_server: false
+# Set this variable to `true` to mask service `tftp`.
+rhel9cis_tftp_mask: false
+# Set this variable to `true` to keep service `squid`; otherwise, the service is uninstalled.
+rhel9cis_squid_server: false
+# Set this variable to `true` to mask service `squid`.
+rhel9cis_squid_mask: false
+# Set this variable to `true` to keep service `httpd`; otherwise, the service is uninstalled.
+rhel9cis_httpd_server: false
+# Set this variable to `true` to mask service `httpd`.
+rhel9cis_httpd_mask: false
+# Set this variable to `true` to keep service `nginx`; otherwise, the service is uninstalled.
+rhel9cis_nginx_server: false
+# Set this variable to `true` to mask service `nginx`.
+rhel9cis_nginx_mask: false
+# Set this variable to `true` to keep service `xinetd`; otherwise, the service is uninstalled.
+rhel9cis_xinetd_server: false
+# Set this variable to `true` to mask service `xinetd`.
+rhel9cis_xinetd_mask: false
+# Set this variable to `true` to keep service `xwindow`; otherwise, the service is uninstalled.
+rhel9cis_xwindow_server: false  # will remove mask not an option
+
+## Control 2.1.21 - Ensure mail transfer agent is configured for local-only mode
+# This variable if set to 'false', ensures that the mail transfer agent is configured for
+# local-only mode.
+rhel9cis_is_mail_server: false
+
+## Section 2.2 Service clients
+
+## Control - 2.2.1 - Ensure FTP client is not installed
+# Set this variable to `true` to keep package `ftp`; otherwise, the package is uninstalled.
+rhel9cis_ftp_client: false
+## Control - 2.2.2 - Ensure LDAP client is not installed
+# Set this variable to `true` to keep package `openldap-clients`; otherwise, the package is uninstalled.
+rhel9cis_openldap_clients_required: false
+## Control - 2.2.3 - Ensure nis client is not installed
+# Set this variable to `true` to keep package `nis`(`ypbind`); otherwise, the package is uninstalled.
+rhel9cis_ypbind_required: false
+## Control - 2.2.4 - Ensure telnet client is not installed
+# Set this variable to `true` to keep package `telnet`; otherwise, the package is uninstalled.
+rhel9cis_telnet_required: false
+## Control - 2.2.5 - Ensure tftp client is not installed
+# Set this variable to `true` to keep package `tftp`; otherwise, the package is uninstalled.
+rhel9cis_tftp_client: false

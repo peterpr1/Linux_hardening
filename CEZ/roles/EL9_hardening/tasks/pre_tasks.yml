@@ -1,0 +1,80 @@
+---
+- name: "remove existing manual intervention log file if present"
+  ansible.builtin.file:
+    path: "{{ manual_intervention_log }}"
+    state: absent
+
+- name: "Create log file for manual intervention tasks."
+  ansible.builtin.blockinfile:
+    path: "{{ manual_intervention_log }}"
+    create: yes
+    mode: '0644'
+    marker: ""
+    block: |
+      ########################################################################################
+      #                                                                                      #
+      #                 This file contains a list of tasks requiring manual                  #
+      #                intervention after the hardening script has completed.                #
+      #                                                                                      #
+      #  The file is located on the remote server at: {{ manual_intervention_log }}          #
+      #                                                                                      #
+      ########################################################################################
+
+- name: "Build a list of currently mounted partitions."
+  ansible.builtin.set_fact:
+    prelim_mount_names: "{{ ansible_facts.mounts | map(attribute='mount') | list }}"
+
+- name: "Read and register current mount options."
+  block:
+    - name: "Read current mount options."
+      ansible.builtin.shell: |
+        mount | awk '{print $1, $3, $5, $6}'
+      changed_when: false
+      check_mode: false
+      register: prelim_mount_output
+
+    - name: "Register fact with current mount options."
+      ansible.builtin.set_fact:
+        prelim_mount_point_fs_and_options: >-
+          {%- set prelim_mount_point_fs_and_options = {} -%}
+          {%- for line in prelim_mount_output.stdout_lines -%}
+          {%- set fields = line.split() -%}
+          {%- set _ = prelim_mount_point_fs_and_options.update({fields[1]: {'src': fields[0], 'fs_type': fields[2], 'original_options': fields[3][1:-1].split(','), 'options': fields[3][1:-1].split(',')}}) -%}
+          {%- endfor -%}
+          {{ prelim_mount_point_fs_and_options }}
+
+- name: "Check systemd coredump"
+  ansible.builtin.stat:
+    path: /etc/systemd/coredump.conf
+  register: prelim_systemd_coredump
+
+- name: "Set facts based on boot type"
+  block:
+    - name: "Check whether machine is UEFI-based"
+      ansible.builtin.stat:
+        path: /sys/firmware/efi
+      register: prelim_efi_boot
+
+    - name: "Set legacy boot and grub path | Bios"
+      when: not prelim_efi_boot.stat.exists
+      ansible.builtin.set_fact:
+        rhel9cis_legacy_boot: true
+        grub2_path: /etc/grub2.cfg
+
+    - name: "Set grub fact | UEFI"
+      when: prelim_efi_boot.stat.exists
+      ansible.builtin.set_fact:
+        grub2_path: /etc/grub2-efi.cfg
+
+- name: "Discover Gnome Desktop Environment"
+  tags: always
+  ansible.builtin.stat:
+    path: /usr/share/gnome/gnome-version.xml
+  register: prelim_gnome_present
+
+- name: "Install dconf if gui installed"
+  when: rhel9cis_gui
+  tags: always
+  ansible.builtin.package:
+    name: dconf
+    state: present

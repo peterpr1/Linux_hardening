@@ -1,0 +1,73 @@
+--- 
+- name: Clean up dnf cache
+  ansible.builtin.command: dnf clean all
+
+- name: Create Zabbix repository
+  ansible.builtin.yum_repository:
+    state: present
+    name: zabbix-ansible-managed
+    description: Zabbix official repositories - managed by ansible
+    baseurl: '{{ repository_baseurl }}'
+    gpgcheck: "1"
+    gpgkey: '{{ repository_internal_gpg_key_url_list }}'
+    proxy: '{{ environments[SERVER_ENVIRONMENT].proxy }}'
+    enabled: true
+  vars:
+    repository_baseurl: '{{ ("https://" if zabbix_repository_url | regex_search("^http(|s):\/\/") is none else "")
+              + zabbix_repository_url + "/zabbix/" + environments[SERVER_ENVIRONMENT].zabbix_version | string + "/"
+              + ("stable/" if (environments[SERVER_ENVIRONMENT].zabbix_version | float >= 7.2) else "")
+              + repository_map_os_to_url[environments[SERVER_ENVIRONMENT].zabbix_version | string][ansible_distribution] + "/"
+              + (repository_map_os_transition[ansible_distribution][ansible_distribution_major_version] | string
+                if repository_map_os_transition[ansible_distribution][ansible_distribution_major_version] is defined
+                  else ansible_distribution_major_version | string)
+              + "/$basearch/" }}'
+    repository_gpg_key_list: '{{ repository_map_gpg_key_list[repository_map_os_transition[ansible_distribution][ansible_distribution_major_version]]
+                if repository_map_os_transition[ansible_distribution][ansible_distribution_major_version] is defined
+                  else repository_map_gpg_key_list[ansible_distribution_major_version] }}'
+    repository_internal_gpg_key_url_list: "{{ repository_gpg_key_list | map('regex_replace', '^(.*)$', zabbix_repository_url + '/\\1') | list }}"
+
+- name: Update YUM cache after adding Zabbix repository
+  ansible.builtin.yum:
+    update_cache: yes
+
+- name: Install Zabbix agent2 package
+  ansible.builtin.yum:
+    name:
+      - zabbix-agent2
+    state: latest
+
+- name: Start and enable Zabbix agent2 service
+  ansible.builtin.service:
+    name: zabbix-agent2
+    state: started
+    enabled: yes
+
+- name: Define hostname
+  ansible.builtin.command: hostname
+  register: gathered_hostname
+
+- name: Set Zabbix server address for passive connections
+  ansible.builtin.lineinfile:
+    path: /etc/zabbix/zabbix_agent2.conf
+    regexp: '^Server='
+    line: "Server={{ environments[SERVER_ENVIRONMENT].zabbix }}"
+    state: present
+
+- name: Set Zabbix server address for active connections
+  ansible.builtin.lineinfile:
+    path: /etc/zabbix/zabbix_agent2.conf
+    regexp: '^ServerActive='
+    line: "ServerActive={{ environments[SERVER_ENVIRONMENT].zabbix }}"
+    state: present
+
+- name: Set hostname
+  ansible.builtin.lineinfile:
+    path: /etc/zabbix/zabbix_agent2.conf
+    regexp: '^Hostname='
+    line: "Hostname={{ gathered_hostname.stdout }}"
+    state: present
+
+- name: Restart Zabbix agent2 service to apply changes
+  ansible.builtin.service:
+    name: zabbix-agent2
+    state: restarted

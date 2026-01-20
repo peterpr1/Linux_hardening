@@ -1,0 +1,108 @@
+---
+- name: Normalize desired NTP servers into a list.
+  ansible.builtin.set_fact:
+    desired_ntp_servers: >-
+      {{
+        (environments[SERVER_ENVIRONMENT].ntp | default([]))
+        if (environments[SERVER_ENVIRONMENT].ntp is iterable and environments[SERVER_ENVIRONMENT].ntp is not string)
+        else (
+          ((environments[SERVER_ENVIRONMENT].ntp | default('')) | trim | from_yaml)
+          if ((environments[SERVER_ENVIRONMENT].ntp | default('')) | trim).startswith('[')
+          else [ (environments[SERVER_ENVIRONMENT].ntp | default('')) ]
+        )
+      }}
+
+- name: Check if /etc/chrony.conf exists.
+  ansible.builtin.stat:
+    path: /etc/chrony.conf
+  register: chrony_conf_stat
+
+- name: Install chrony if not present and NTP servers are defined
+  ansible.builtin.package:
+    name: chrony
+    state: present
+  when: (not chrony_conf_stat.stat.exists) and (desired_ntp_servers | length > 0)
+
+- name: Find files in /etc/chrony.d.
+  ansible.builtin.find:
+    paths: /etc/chrony.d
+    patterns: '*.conf'
+    file_type: file
+  register: chrony_d_files
+  failed_when: false
+
+- name: Build list of chrony configuration files to process.
+  ansible.builtin.set_fact:
+    ntp_files: >-
+      {{ (chrony_conf_stat.stat.exists | default(False)) | ternary([{'path': '/etc/chrony.conf'}], []) + (chrony_d_files.files | default([])) }}
+
+- name: Skip further steps if no chrony files found (no /etc/chrony.conf and no /etc/chrony.d/*.conf).
+  ansible.builtin.fail:
+    msg: "No chrony configuration files found to update."
+  when: (ntp_files | length == 0) or (desired_ntp_servers | length == 0)
+
+- name: Retrieve contents of chrony files
+  ansible.builtin.slurp:
+    src: "{{ item.path }}"
+  loop: "{{ ntp_files }}"
+  register: ntp_slurps
+  when: (ntp_files | length > 0) and (desired_ntp_servers | length > 0)
+
+- name: Create a backup of each chrony file before modification.
+  ansible.builtin.copy:
+    src: "{{ item.path }}"
+    dest: "{{ item.path }}.ansible.bak"
+    remote_src: yes
+    force: no
+  loop: "{{ ntp_files }}"
+  when: ntp_files | length > 0 and desired_ntp_servers | length > 0
+
+- name: Build list of entries with existing NTP servers.
+  ansible.builtin.set_fact:
+    ntp_entries: >-
+      {{ ntp_entries | default([]) + [ {
+        'file': item.item.path,
+        'content': (item.content | b64decode),
+        'existing_servers': (item.content | b64decode) | regex_findall('^\s*(?:server|pool)\s+([^\s#]+)', multiline=True),
+        'desired_servers': desired_ntp_servers
+      } ] }}
+  loop: "{{ ntp_slurps.results | default([]) }}"
+  when: (desired_ntp_servers | length > 0)
+
+- name: Remove `server`/`pool` entries not in the list of desired NTP servers.
+  ansible.builtin.lineinfile:
+    path: "{{ item.0.file }}"
+    regexp: "^\\s*(?:server|pool)\\s+{{ item.1 }}(\\s|$)"
+    state: absent
+  with_subelements:
+    - "{{ ntp_entries | default([]) }}"
+    - existing_servers
+  when: item.1 not in item.0.desired_servers
+  register: ntp_remove_results
+  failed_when: false
+
+- name: Add/ensure desired NTP servers are present in chrony files.
+  ansible.builtin.lineinfile:
+    path: "{{ item.0.file }}"
+    regexp: "^\\s*(?:server|pool)\\s+{{ item.1 }}(\\s|$)"
+    line: "server {{ item.1 }} iburst"
+    insertafter: EOF
+    create: yes
+  with_subelements:
+    - "{{ ntp_entries | default([]) }}"
+    - desired_servers
+  register: ntp_add_results
+  when: (desired_ntp_servers | length > 0)
+  failed_when: false
+
+- name: Register list of modified chrony files.
+  ansible.builtin.set_fact:
+    modified_chrony_files: >-
+      {{ (ntp_remove_results.results | default([]) | selectattr('changed') | map(attribute='item.0.file') | list) +
+         (ntp_add_results.results | default([]) | selectattr('changed') | map(attribute='item.0.file') | list) | unique }}
+  when: ((ntp_remove_results is defined or ntp_add_results is defined) and (desired_ntp_servers | length > 0))
+
+- name: Display summary of modified chrony files.
+  ansible.builtin.debug:
+    msg: "Configured NTP servers {{ desired_ntp_servers }} in {{ modified_chrony_files | default([]) | length }} files: {{ modified_chrony_files | default([]) }}"
+  when: desired_ntp_servers | length > 0

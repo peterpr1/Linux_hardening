@@ -1,0 +1,76 @@
+---
+# tasks file for rhel9_hardening
+- name: Abort if the operating system is not supported.
+  ansible.builtin.fail:
+    msg: 
+      - "Unsupported operating system: {{ ansible_distribution }} {{ ansible_distribution_version }}."
+      - "Supported operating systems: OracleLinux 9, RedHat 9."
+  when: not supported_os
+
+- name: Import role variables.
+  ansible.builtin.include_vars:
+    dir: "{{ role_path }}/vars"
+    ignore_files:
+      - main.yml
+    extensions: ['yaml', 'yml']
+
+- name: Gather package facts.
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Run preliminary tasks to gather system information.
+  ansible.builtin.include_tasks:
+    file: pre_tasks.yml
+
+- name: Configure proxy settings for yum/dnf repositories.
+  ansible.builtin.include_tasks:
+    file: extra_configurations/configure_proxy.yml
+  when: CONFIGURE_PROXY | bool
+
+- name: Configure NTP servers.
+  ansible.builtin.include_tasks:
+    file: extra_configurations/configure_ntp.yml
+  when: CONFIGURE_NTP | bool
+
+- name: Install and configure Zabbix agent.
+  ansible.builtin.include_tasks:
+    file: extra_configurations/configure_zabbix.yml
+  when: CONFIGURE_ZABBIX | bool
+
+- name: Install and configure additional system tools.
+  ansible.builtin.include_tasks:
+    file: configure_services.yml
+
+- name: Configure firewalld 
+  ansible.builtin.include_tasks:
+    file: configure_firewall.yml
+
+- name: Configure AIDE 
+  ansible.builtin.include_tasks:
+    file: configure_aide.yml
+
+- name: Run hardening for Oracle Linux 9.
+  ansible.builtin.include_tasks:
+    file: oracle/main.yml
+  when: "ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'"
+
+- name: Run hardening for RedHat 9.
+  ansible.builtin.include_tasks:
+    file: redhat/main.yml
+  when: "ansible_distribution == 'RedHat' and ansible_distribution_major_version == '9'"
+
+- name: Verify if the manual intervention tasks log file exists.
+  ansible.builtin.stat:
+    path: /tmp/manual_intervention.log
+  register: manual_intervention_log_stat
+
+- name: Read the manual intervention tasks log file.
+  ansible.builtin.command: cat /tmp/manual_intervention.log
+  changed_when: false
+  register: manual_intervention_log
+  when: manual_intervention_log_stat.stat.exists
+
+- name: Display the contents of the manual intervention tasks log file.
+  ansible.builtin.debug:
+    msg: "{{ manual_intervention_log.stdout_lines }}"
+  when: manual_intervention_log_stat.stat.exists

@@ -1,0 +1,73 @@
+---
+- name: "Ensure  {{ required_mount }} is a separate partition."
+  vars:
+    warn_control_id: '1.1.2.5.1'
+    required_mount: '/var/tmp'
+  block:
+    - name: "Verify the mount status of {{ required_mount }}."
+      ansible.builtin.command: findmnt -kn "{{ required_mount }}"
+      changed_when: false
+      failed_when: discovered_var_tmp_mount.rc not in [ 0, 1 ]
+      register: discovered_var_tmp_mount
+
+    - name: "Display a warning if there is no separate partition/mount point for {{ required_mount }}."
+      when: discovered_var_tmp_mount is undefined or discovered_var_tmp_mount.stdout == ""
+      ansible.builtin.debug:
+        msg: 
+          - "Warning!! {{ required_mount }} is not a separate partition."
+          - "Create a separate partition for {{ required_mount }} and mount it with options: nodev,nosuid,noexec."
+
+    - name: "Create a log entry for tasks requiring manual intervention."
+      when: discovered_var_tmp_mount is undefined or discovered_var_tmp_mount.stdout == ""
+      ansible.builtin.blockinfile:
+        path: "{{ manual_intervention_log }}"
+        create: yes
+        mode: '0644'
+        marker: ""
+        block: |
+          Recommendations for task "{{ warn_control_id }}":
+          --------------------------------------------------------------------------------------------------------------
+          {{ required_mount }} is not a separate partition.
+          Create a separate partition for "{{ required_mount }}" and mount it with options: nodev,nosuid,noexec.
+  when:
+    - rhel9cis_rule_1_1_2_5_1
+    - required_mount not in prelim_mount_names
+
+- name: "Ensure the nodev option is set for the {{ mount_point }} partition."
+  vars:
+    mount_point: "/var/tmp"
+    required_option: nodev
+  notify: &mount_option_notify
+    - "Remount {{ mount_point }}"
+  ansible.builtin.set_fact: &mount_option_set_fact
+    prelim_mount_point_fs_and_options: |
+      {{ prelim_mount_point_fs_and_options | combine({mount_point: {'options': (prelim_mount_point_fs_and_options[mount_point]['options'] + [required_option])}}, recursive=True) }}
+  changed_when: &mount_option_changed_when
+    - required_option not in prelim_mount_point_fs_and_options[mount_point]['original_options']
+  when:
+    - prelim_mount_point_fs_and_options[mount_point] is defined
+    - rhel9cis_rule_1_1_2_5_2
+
+- name: "Ensure the nosuid option is set for the {{ mount_point }} partition."
+  vars:
+    mount_point: "/var/tmp"
+    required_option: nosuid
+  notify: *mount_option_notify
+  ansible.builtin.set_fact:
+    <<: *mount_option_set_fact
+  changed_when: *mount_option_changed_when
+  when:
+    - prelim_mount_point_fs_and_options[mount_point] is defined
+    - rhel9cis_rule_1_1_2_5_3
+
+- name: "Ensure the noexec option is set for the {{ mount_point }} partition."
+  vars:
+    mount_point: "/var/tmp"
+    required_option: noexec
+  notify: *mount_option_notify
+  ansible.builtin.set_fact:
+    <<: *mount_option_set_fact
+  changed_when: *mount_option_changed_when
+  when:
+    - prelim_mount_point_fs_and_options[mount_point] is defined
+    - rhel9cis_rule_1_1_2_5_4

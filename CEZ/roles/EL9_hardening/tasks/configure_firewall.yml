@@ -1,0 +1,105 @@
+- name: Disable and stop iptables if it is running.
+  ansible.builtin.systemd:
+    name: iptables
+    masked: yes
+    state: stopped
+    enabled: no
+  when: |
+        (ansible_facts.services['iptables.service'] is defined) and 
+        (ansible_facts.services['iptables.service']['status'] == "enabled" or ansible_facts.services['iptables.service']['state'] == "active")
+
+- name: Start and enable firewalld.
+  ansible.builtin.systemd:
+    name: firewalld
+    masked: no
+    state: started
+    enabled: yes
+  
+
+- name: Verify existing ipsets.
+  ansible.builtin.command: firewall-cmd --permanent --get-ipsets
+  register: active_ipsets
+
+- name: Create ipset 'ssh_allow' if it does not exist.
+  command: firewall-cmd --permanent --new-ipset=ssh_allow --type=hash:net
+  when: '"ssh_allow" not in active_ipsets.stdout'
+
+- name: Add addresses to ipset 'ssh_allow'.
+  command: firewall-cmd --permanent --ipset=ssh_allow --add-entry={{ item }}
+  loop: "{{ ssh_allow }}"
+
+- name: Create ipset 'cockpit_allow' if it does not exist.
+  command: firewall-cmd --permanent --new-ipset=cockpit_allow --type=hash:net
+  when: '"cockpit_allow" not in active_ipsets.stdout'
+
+- name: Add addresses to ipset 'cockpit_allow'.
+  command: firewall-cmd --permanent --ipset=cockpit_allow --add-entry={{ item }}
+  loop: "{{ cockpit_allow }}"
+
+- name: Create ipset 'echo-request_allow' if it does not exist.
+  command: firewall-cmd --permanent --new-ipset=echo-request_allow --type=hash:net
+  when: '"echo-request_allow" not in active_ipsets.stdout'
+
+- name: Add addresses to ipset 'echo-request_allow'.
+  command: firewall-cmd --permanent --ipset=echo-request_allow --add-entry={{ item }}
+  loop: "{{ echo_request_allow }}"
+
+- name: Create ipset 'echo-reply_allow' if it does not exist.
+  command: firewall-cmd --permanent --new-ipset=echo-reply_allow --type=hash:net
+  when: '"echo-reply_allow" not in active_ipsets.stdout'
+
+- name: Add addresses to ipset 'echo-reply_allow'.
+  command: firewall-cmd --permanent --ipset=echo-reply_allow --add-entry={{ item }}
+  loop: "{{ echo_reply_allow }}"
+
+- name: Create rich-rule allowing traffic from Zabbix server for DROP zone.
+  firewalld:
+    permanent: yes
+    immediate: yes
+    state: enabled
+    zone: drop
+    rich_rule: rule family=ipv4 source address={{ environments[SERVER_ENVIRONMENT].zabbix }} port port=10050 protocol=tcp accept
+
+- name: Create rich-rule dropping traffic from loopback not destined to loopback for trusted zone (IPv4).
+  firewalld:
+    permanent: yes
+    immediate: yes
+    state: enabled
+    zone: trusted
+    rich_rule: rule family=ipv4 source address=127.0.0.1 destination not address=127.0.0.1 drop
+
+- name: Create rich-rule dropping traffic from loopback not destined to loopback for trusted zone (IPv6).
+  firewalld:
+    permanent: yes
+    immediate: yes
+    state: enabled
+    zone: trusted
+    rich_rule: rule family=ipv6 source address=::1 destination not address=::1 drop
+
+- name: Create rich-rule allowing SSH traffic for DROP zone.
+  command: firewall-cmd --permanent --zone=drop --add-rich-rule='rule family=ipv4 source ipset=ssh_allow service name="ssh" accept'
+
+- name: Create rich-rule allowing traffic to Cockpit service for DROP zone.
+  command: firewall-cmd --permanent --zone=drop --add-rich-rule='rule family=ipv4 source ipset=cockpit_allow service name="cockpit" accept'
+
+- name: Create rich-rule allowing icmp echo-request for DROP zone.
+  command: firewall-cmd --permanent --zone=drop --add-rich-rule='rule family=ipv4 source ipset=echo-request_allow icmp-type name="echo-request" accept'
+
+- name: Create rich-rule allowing icmp echo-reply for DROP zone.
+  command: firewall-cmd --permanent --zone=drop --add-rich-rule='rule family=ipv4 source ipset=echo-reply_allow icmp-type name="echo-reply" accept'
+
+- name: Set default ICMP blocking in DROP zone.
+  firewalld:
+    zone: drop
+    icmp_block_inversion: "yes"
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Set default zone to DROP.
+  command: firewall-cmd --set-default-zone=drop
+
+- name: Restart firewalld to apply changes.
+  ansible.builtin.service:
+    name: firewalld
+    state: restarted

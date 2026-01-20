@@ -1,0 +1,102 @@
+---
+- name: "Ensure GPG keys are configured"
+  block:
+    - name: "Check installed GPG keys of the operating system."
+      ansible.builtin.shell: "rpm -qa | grep {{ rhel_gpg_key_pubkey_name }}"  
+      changed_when: false
+      failed_when: false
+      register: discovered_os_installed_pub_keys
+
+    - name: "Query found GPG keys to verify expected content."
+      ansible.builtin.shell: |
+        'rpm -q --queryformat "%{PACKAGER} %{VERSION}\\n" {{ rhel_gpg_key_pubkey_name }} | grep "{{ rhel_gpg_key_pubkey_content }}"'
+      changed_when: false
+      failed_when: false
+      register: discovered_os_gpg_key_check
+
+    - name: "Fail if expected GPG keys are not installed or do not meet expected values."
+      when:
+        - discovered_os_installed_pub_keys.rc == 1 or
+          discovered_os_gpg_key_check.rc == 1
+      ansible.builtin.fail:
+        msg: "Installed GPG keys do not meet expected values or expected keys are not installed."
+  when: rhel9cis_rule_1_2_1_1
+
+- name: "Ensure gpgcheck is globally enabled."
+  block:
+    - name: "Ensure gpgcheck is globally enabled. Retrieve repository files."
+      ansible.builtin.find:
+        paths: /etc/yum.repos.d
+        patterns: "*.repo"
+      register: discovered_yum_repos
+
+    - name: "Ensure gpgcheck is globally enabled. Update yum.repos files."
+      ansible.builtin.replace:
+        name: "{{ item.path }}"
+        regexp: ^gpgcheck\s*=\s*0
+        replace: "gpgcheck=1"
+      loop: "{{ discovered_yum_repos.files }}"
+      loop_control:
+        label: "{{ item.path }}"
+  when: rhel9cis_rule_1_2_1_2
+
+- name: "Ensure repo_gpgcheck is globally enabled."
+  vars:
+    warn_control_id: '1.2.1.3'
+  block:
+    - name: "Verify if repo_gpgcheck=1 is set in /etc/dnf/dnf.conf (AUDIT only)"
+      ansible.builtin.shell: "grep -E '^repo_gpgcheck\\s*=\\s*1' /etc/dnf/dnf.conf"
+      register: repo_gpgcheck_audit
+      changed_when: false
+      failed_when: false
+
+    - name: "Display a warning if repo_gpgcheck=1 is not set in /etc/dnf/dnf.conf"
+      when: repo_gpgcheck_audit.rc != 0
+      ansible.builtin.debug:
+        msg:
+          - "Warning!! The line 'repo_gpgcheck=1' was not found in /etc/dnf/dnf.conf."
+          - "Try to set this manually to globally enable GPG verification for repositories and verify that it does not negatively impact the package update process."
+
+    - name: "Create a log entry for tasks requiring manual intervention."
+      ansible.builtin.blockinfile:
+        path: "{{ manual_intervention_log }}"
+        create: yes
+        mode: '0644'
+        marker: ""
+        block: |
+          Recommendations for task "{{ warn_control_id }}":
+          --------------------------------------------------------------------------------------------------------------
+           The line 'repo_gpgcheck=1' was not found in /etc/dnf/dnf.conf.
+           Try to set this manually to globally enable GPG verification for repositories and verify that it does not negatively impact the package update process.
+  when: rhel9cis_rule_1_2_1_3
+
+- name: "Ensure package manager repositories are configured."
+  vars:
+    warn_control_id: '1.2.1.4'
+  block:
+    - name: "Retrieve the list of configured DNF repositories."
+      ansible.builtin.command: dnf repolist
+      changed_when: false
+      failed_when: false
+      check_mode: false
+      register: discovered_dnf_configured
+
+    - name: "Display the list of configured repositories."
+      ansible.builtin.debug:
+        msg:
+          - "Attention !!!"
+          - Below are the configured repositories. Please review them and ensure that all are compliant with the organization's policy and functioning correctly."
+          - "{{ discovered_dnf_configured.stdout_lines }}"
+
+    - name: "Create a log entry for tasks requiring manual intervention."
+      ansible.builtin.blockinfile:
+        path: "{{ manual_intervention_log }}"
+        create: yes
+        mode: '0644'
+        marker: ""
+        block: |
+          Recommendation for task "{{ warn_control_id }}":
+          --------------------------------------------------------------------------------------------------------------
+          Enabled gpgcheck=1 on detected repositories.
+          Review the configured repositories and ensure that all are compliant with the organization's policy and functioning correctly.
+  when: rhel9cis_rule_1_2_1_4

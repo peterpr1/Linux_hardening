@@ -1,0 +1,11 @@
+---
+- name: "Ensure chrony is not run as the root user"
+  ansible.builtin.lineinfile:
+    path: /etc/sysconfig/chronyd
+    regexp: '^OPTIONS="(?!.* -u chrony.*)(.*)"'
+    line: OPTIONS="\1 -u chrony"
+    create: true
+    backrefs: true
+    mode: 'go-wx'
+  when:
+    - rhel9cis_rule_2_3_3
