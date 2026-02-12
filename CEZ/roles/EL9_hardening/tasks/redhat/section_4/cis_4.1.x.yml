@@ -1,0 +1,43 @@
+---
+- name: "Ensure nftables is installed"
+  ansible.builtin.package:
+    name:
+      - nftables
+    state: present
+  when:
+    - rhel9cis_rule_4_1_1
+    - rhel9cis_firewall == 'nftables'
+
+- name: "Ensure a single firewall configuration utility is in use"
+  block:
+    - name: "Ensure a single firewall configuration utility is in use | nftables"
+      when:
+        - item in ansible_facts.packages
+        - rhel9cis_firewall == 'nftables'
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        masked: true
+      loop:
+        - firewalld
+
+    - name: "Ensure a single firewall configuration utility is in use | firewalld"
+      when:
+        - item in ansible_facts.packages
+        - rhel9cis_firewall == 'firewalld'
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        masked: true
+      loop:
+        - nftables
+
+    - name: "Ensure a single firewall configuration utility is in use | package installed"
+      ansible.builtin.package:
+        name: "{{ rhel9cis_firewall }}"
+        state: installed
+
+    - name: "Ensure a single firewall configuration utility is in use | {{ rhel9cis_firewall }} started and enabled"
+      ansible.builtin.systemd:
+        name: "{{ rhel9cis_firewall }}"
+        enabled: true
+        state: started
+  when: rhel9cis_rule_4_1_2

@@ -1,0 +1,12 @@
+---
+- name: "Ensure firewalld drops unnecessary services and ports"
+  ansible.builtin.debug:
+    msg:
+      - "Configuration being set via task 'Configure firewalld' which activates the DROP zone for the default zone and adds rules to drop all unnecessary services and ports."
+  when: rhel9cis_rule_4_2_1
+
+- name: "Ensure firewalld loopback traffic is configured | firewalld"
+  ansible.builtin.debug:
+    msg:
+      - "Configuration being set via task 'Configure firewalld' which adds rich rules to drop traffic to and from the loopback interface that does not originate from or is destined for the loopback address."
+  when: rhel9cis_rule_4_2_2

@@ -44,6 +44,7 @@
 - name: Configure firewalld 
   ansible.builtin.include_tasks:
     file: configure_firewall.yml
+  when: rhel9cis_firewall == 'firewalld'
 
 - name: Configure AIDE 
   ansible.builtin.include_tasks:
