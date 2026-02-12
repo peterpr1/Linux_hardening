@@ -160,8 +160,9 @@
 - name: Reload sysctl
   ansible.builtin.command: sysctl --system
   changed_when: true
-  listen: Reload sysctl
+  listen: "Reload sysctl"
 
+# cis_3.3.x.yml
 - name: Sysctl flush ipv4 route table
   when:
     - rhel9cis_flush_ipv4_route
@@ -171,6 +172,7 @@
     sysctl_set: true
   ignore_errors: true 
 
+# cis_3.3.x.yml
 - name: Sysctl flush ipv6 route table
   when:
     - rhel9cis_flush_ipv6_route

@@ -12,7 +12,7 @@
 
     - name: "Set ASLR and ptrace_scope kernel parameters with template"
       ansible.builtin.template:
-        src: sysctl.d/60-kernel_sysctl.conf.j2
+        src: etc/sysctl.d/60-kernel_sysctl.conf.j2
         dest: /etc/sysctl.d/60-kernel_sysctl.conf
         owner: root
         group: root

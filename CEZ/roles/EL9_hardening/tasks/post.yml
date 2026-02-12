@@ -1,0 +1,19 @@
+---
+- name: POST | Update sysctl
+  ansible.builtin.template:
+    src: "etc/sysctl.d/{{ item }}.j2"
+    dest: "/etc/sysctl.d/{{ item }}"
+    owner: root
+    group: root
+    mode: 'go-rwx'
+  notify: 
+    - Reload sysctl
+    - Sysctl flush ipv6 route table
+    - Sysctl flush ipv4 route table
+  loop:
+    - 60-kernel_sysctl.conf
+    - 60-disable_ipv6.conf
+    - 60-netipv4_sysctl.conf
+    - 60-netipv6_sysctl.conf
+  when:
+    - rhel9cis_sysctl_update

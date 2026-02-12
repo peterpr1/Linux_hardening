@@ -78,3 +78,22 @@
   ansible.builtin.package:
     name: dconf
     state: present
+
+- name: "Wireless adapter pre-requisites"
+  when:
+    - rhel9cis_rule_3_1_2
+  block:
+    - name: "Discover is wireless adapter on system"
+      ansible.builtin.command: find /sys/class/net/*/ -type d -name wireless
+      register: discover_wireless_adapters
+      changed_when: false
+      check_mode: false
+      failed_when: discover_wireless_adapters.rc not in [ 0, 1 ]
+
+    - name: "Install Network-Manager if wireless adapter present"
+      when:
+        - discover_wireless_adapters.rc == 0
+        - "'NetworkManager' not in ansible_facts.packages"
+      ansible.builtin.package:
+        name: NetworkManager
+        state: present

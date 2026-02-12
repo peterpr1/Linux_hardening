@@ -1,0 +1,77 @@
+---
+# rhel9cis_ipv6_required used to specify if IPv6 is in use
+- name: "Ensure IPv6 status is identified"
+  block:
+    - name: Ensure IPv6 status is identified | refresh"
+      ansible.builtin.set_fact:
+        rhel9cis_sysctl_update: true
+        rhel9cis_flush_ipv6_route: true
+
+    - name: "Ensure IPv6 status is identified | disable"
+      ansible.builtin.debug:
+        msg: "Control being set via post task 'Update sysctl' which writes to /etc/sysctl.d/60-disable_ipv6.conf"
+  when:
+    - not rhel9cis_ipv6_required
+    - rhel9cis_rule_3_1_1
+
+- name: "Ensure wireless interfaces are disabled"
+  vars:
+    warn_control_id: '3.1.2'
+  block:
+    - name: "Ensure wireless interfaces are disabled | Check for network-manager tool"
+      when: "rhel9cis_network_manager_package_name in ansible_facts.packages"
+      ansible.builtin.command: nmcli radio wifi
+      changed_when: false
+      failed_when: false
+      check_mode: false
+      register: discovered_wifi_status
+
+    - name: "Ensure wireless interfaces are disabled | Disable wireless if network-manager installed"
+      when:
+        - "rhel9cis_network_manager_package_name in ansible_facts.packages"
+        - "'enabled' in discovered_wifi_status.stdout"
+      ansible.builtin.command: nmcli radio all off
+      changed_when: discovered_nmcli_radio_off.rc == 0
+      register: discovered_nmcli_radio_off
+
+    - name: "Ensure wireless interfaces are disabled | Warn about wireless if network-manager not installed"
+      when: "rhel9cis_network_manager_package_name not in ansible_facts.packages"
+      ansible.builtin.debug:
+        msg: "Warning!! You need to disable wireless interfaces manually since network-manager is not installed"
+
+    - name: "Create an entry in the log file for tasks requiring manual intervention."
+      when: "rhel9cis_network_manager_package_name not in ansible_facts.packages"
+      ansible.builtin.blockinfile:
+        path: "{{ manual_intervention_log }}"
+        create: yes
+        mode: '0644'
+        marker: ""
+        block: |
+          Recommendations for task "{{ warn_control_id }}":
+          -------------------------------------------------------------------------------------------------------------- 
+          Disable wireless interfaces manually since network-manager is not installed.
+  when:
+    - rhel9cis_rule_3_1_2
+    - discover_wireless_adapters.rc == 0
+
+- name: "Ensure bluetooth services are not in use"
+  block:
+    - name: "Ensure bluetooth services are not in use | pkg"
+      when:
+        - not rhel9cis_bluetooth_service
+        - not rhel9cis_bluetooth_mask
+      ansible.builtin.package:
+        name: bluez
+        state: absent
+
+    - name: "Ensure bluetooth services are not in use | mask"
+      when:
+        - not rhel9cis_bluetooth_service
+        - rhel9cis_bluetooth_mask
+      notify: Systemd daemon reload
+      ansible.builtin.systemd:
+        name: bluetooth.service
+        enabled: false
+        state: stopped
+        masked: true
+  when: rhel9cis_rule_3_1_3

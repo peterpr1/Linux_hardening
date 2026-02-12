@@ -88,3 +88,28 @@
   import_tasks:
     file: section_2/cis_2.2.x.yml
   when: rhel9cis_section2
+
+- name: Import tasks from section 2 - cis_2.3.x.yml
+  import_tasks:
+    file: section_2/cis_2.3.x.yml
+  when: rhel9cis_section2
+
+- name: Import tasks from section 2 - cis_2.4.x.yml
+  import_tasks:
+    file: section_2/cis_2.4.x.yml
+  when: rhel9cis_section2
+
+- name: Import tasks from section 3 - cis_3.1.x.yml
+  import_tasks:
+    file: section_3/cis_3.1.x.yml
+  when: rhel9cis_section3
+
+- name: Import tasks from section 3 - cis_3.2.x.yml
+  import_tasks:
+    file: section_3/cis_3.2.x.yml
+  when: rhel9cis_section3
+
+- name: Import tasks from section 3 - cis_3.3.x.yml
+  import_tasks:
+    file: section_3/cis_3.3.x.yml
+  when: rhel9cis_section3

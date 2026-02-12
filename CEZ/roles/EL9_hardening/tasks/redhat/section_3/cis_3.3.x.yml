@@ -1,0 +1,180 @@
+---
+- name: "Ensure IP forwarding is disabled"
+  block:
+    - name: "Ensure IP forwarding is disabled | Disable IPv4 forwarding | Set Fact"
+      ansible.builtin.set_fact:
+        rhel9cis_sysctl_update: true
+        rhel9cis_flush_ipv4_route: true
+
+    - name: "Ensure IP forwarding is disabled | Disable IPv4 forwarding"
+      ansible.builtin.debug:
+        msg: "Control being set via post task 'Update sysctl' which writes to /etc/sysctl.d/60-netipv4_sysctl.conf"
+
+    - name: "Ensure IP forwarding is disabled | IPv6"
+      when: rhel9cis_ipv6_required
+      block:
+        - name: "Ensure IP forwarding is disabled | Disable IPv6 forwarding | Set Fact"
+          ansible.builtin.set_fact:
+            rhel9cis_flush_ipv6_route: true
+
+        - name: "Ensure IP forwarding is disabled | Disable IPv6 forwarding"
+          ansible.builtin.debug:
+            msg: "Control being set via post task 'Update sysctl' which writes to /etc/sysctl.d/60-netipv6_sysctl.conf"
+  when:
+    - not rhel9cis_is_router
+    - rhel9cis_rule_3_3_1
+
+- name: "Ensure packet redirect sending is disabled"
+  block:
+    - name: "Ensure packet redirect sending is disabled | Set Fact"
+      ansible.builtin.set_fact:
+        rhel9cis_sysctl_update: true
+        rhel9cis_flush_ipv4_route: true
+    - name: "Ensure packet redirect sending is disabled"
+      ansible.builtin.debug:
+        msg: "Control being set via post task 'Update sysctl' which writes to /etc/sysctl.d/60-netipv4_sysctl.conf"
+  when:
+    - not rhel9cis_is_router
+    - rhel9cis_rule_3_3_2
+
+- name: "Ensure bogus ICMP responses are ignored"
+  block:
+    - name: "Ensure bogus ICMP responses are ignored | Set Fact"
+      ansible.builtin.set_fact:
+        rhel9cis_sysctl_update: true
+        rhel9cis_flush_ipv4_route: true
+
+    - name: "Ensure bogus ICMP responses are ignored"
+      ansible.builtin.debug:
+        msg: "Control being set via post task 'Update sysctl' which writes to /etc/sysctl.d/60-netipv4_sysctl.conf"
+  when: rhel9cis_rule_3_3_3
+
+- name: "Ensure broadcast ICMP requests are ignored"
+  block:
+    - name: "Ensure broadcast ICMP requests are ignored | Set Fact"
+      ansible.builtin.set_fact:
+        rhel9cis_sysctl_update: true
+        rhel9cis_flush_ipv4_route: true
+
+    - name: "Ensure broadcast ICMP requests are ignored"
+      ansible.builtin.debug:
+        msg: "Control being set via post task 'Update sysctl' which writes to /etc/sysctl.d/60-netipv4_sysctl.conf"
+  when: rhel9cis_rule_3_3_4
+
+- name: "Ensure ICMP redirects are not accepted"
+  block:
+    - name: "Ensure ICMP redirects are not accepted | Set Fact"
+      ansible.builtin.set_fact:
+        rhel9cis_sysctl_update: true
+        rhel9cis_flush_ipv4_route: true
+
+    - name: "Ensure ICMP redirects are not accepted"
+      ansible.builtin.debug:
+        msg: "Control being set via post task 'Update sysctl' which writes to /etc/sysctl.d/60-netipv4_sysctl.conf"
+
+    - name: "Ensure ICMP redirects are not accepted | IPv6"
+      when: rhel9cis_ipv6_required
+      block:
+        - name: "Ensure ICMP redirects are not accepted | IPv6 | Set Fact"
+          ansible.builtin.set_fact:
+            rhel9cis_flush_ipv6_route: true
+
+        - name: "Ensure ICMP redirects are not accepted | IPv6"
+          ansible.builtin.debug:
+            msg: "Control being set via post task 'Update sysctl' which writes to /etc/sysctl.d/60-netipv6_sysctl.conf"
+  when: rhel9cis_rule_3_3_5
+
+- name: "Ensure secure ICMP redirects are not accepted"
+  block:
+    - name: "Ensure secure ICMP redirects are not accepted | IPv4 | Set Fact"
+      ansible.builtin.set_fact:
+        rhel9cis_sysctl_update: true
+        rhel9cis_flush_ipv4_route: true
+
+    - name: "Ensure secure ICMP redirects are not accepted | IPv4"
+      ansible.builtin.debug:
+        msg: "Control being set via post task 'Update sysctl' which writes to /etc/sysctl.d/60-netipv4_sysctl.conf"
+
+    - name: "Ensure secure ICMP redirects are not accepted | IPv6"
+      when: rhel9cis_ipv6_required
+      block:
+        - name: "Ensure secure ICMP redirects are not accepted | IPv6 | Set Fact"
+          ansible.builtin.set_fact:
+            rhel9cis_flush_ipv6_route: true
+
+        - name: "Ensure secure ICMP redirects are not accepted | IPv6"
+          ansible.builtin.debug:
+            msg: "Control being set via post task 'Update sysctl' which writes to /etc/sysctl.d/60-netipv6_sysctl.conf"
+  when: rhel9cis_rule_3_3_6
+
+- name: "Ensure Reverse Path Filtering is enabled"
+  block:
+    - name: "Ensure Reverse Path Filtering is enabled | Set Fact"
+      ansible.builtin.set_fact:
+        rhel9cis_sysctl_update: true
+        rhel9cis_flush_ipv4_route: true
+
+    - name: "Ensure Reverse Path Filtering is enabled"
+      ansible.builtin.debug:
+        msg: "Control being set via post task 'Update sysctl' which writes to /etc/sysctl.d/60-netipv4_sysctl.conf"
+  when: rhel9cis_rule_3_3_7
+
+- name: "Ensure source routed packets are not accepted"
+  block:
+    - name: "Ensure source routed packets are not accepted | IPv4 | Set Fact"
+      ansible.builtin.set_fact:
+        rhel9cis_sysctl_update: true
+        rhel9cis_flush_ipv4_route: true
+    - name: "Ensure source routed packets are not accepted | IPv4"
+      ansible.builtin.debug:
+        msg: "Control being set via post task 'Update sysctl' which writes to /etc/sysctl.d/60-netipv4_sysctl.conf"
+
+    - name: "Ensure source routed packets are not accepted | IPv6"
+      when: rhel9cis_ipv6_required
+      block:
+        - name: "Ensure source routed packets are not accepted | IPv6 | Set Fact"
+          ansible.builtin.set_fact:
+            rhel9cis_flush_ipv6_route: true
+
+        - name: "Ensure source routed packets are not accepted | IPv6"
+          ansible.builtin.debug:
+            msg: "Control being set via post task 'Update sysctl' which writes to /etc/sysctl.d/60-netipv6_sysctl.conf"
+  when: rhel9cis_rule_3_3_8
+
+- name: "Ensure suspicious packets are logged"
+  block:
+    - name: "Ensure suspicious packets are logged | Set Fact"
+      ansible.builtin.set_fact:
+        rhel9cis_sysctl_update: true
+        rhel9cis_flush_ipv4_route: true
+
+    - name: "Ensure suspicious packets are logged"
+      ansible.builtin.debug:
+        msg: "Control being set via post task 'Update sysctl' which writes to /etc/sysctl.d/60-netipv4_sysctl.conf"
+  when: rhel9cis_rule_3_3_9
+
+- name: "Ensure TCP SYN Cookies is enabled"
+  block:
+    - name: "Ensure TCP SYN Cookies is enabled | Set Fact"
+      ansible.builtin.set_fact:
+        rhel9cis_sysctl_update: true
+        rhel9cis_flush_ipv4_route: true
+
+    - name: "Ensure TCP SYN Cookies is enabled"
+      ansible.builtin.debug:
+        msg: "Control being set via post task 'Update sysctl' which writes to /etc/sysctl.d/60-netipv4_sysctl.conf"
+  when: rhel9cis_rule_3_3_10
+
+- name: "Ensure IPv6 router advertisements are not accepted"
+  block:
+    - name: "Ensure IPv6 router advertisements are not accepted | IPv6 | Set Fact"
+      ansible.builtin.set_fact:
+        rhel9cis_sysctl_update: true
+        rhel9cis_flush_ipv6_route: true
+
+    - name: "Ensure IPv6 router advertisements are not accepted | IPv6"
+      ansible.builtin.debug:
+        msg: "Control being set via post task 'Update sysctl' which writes to /etc/sysctl.d/60-netipv6_sysctl.conf"
+  when:
+    - rhel9cis_ipv6_required
+    - rhel9cis_rule_3_3_11

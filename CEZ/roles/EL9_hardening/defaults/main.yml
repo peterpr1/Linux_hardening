@@ -54,7 +54,7 @@ rhel9cis_legacy_boot: false
 # If you do not want the tasks from that section to get executed you simply set the variable to "false".
 # Some sections support sub-section modularization. The super-section and sub-section must both be true
 # for the sub-section to execute.
-rhel9cis_section1: false
+rhel9cis_section1: true
 rhel9cis_section2: true
 rhel9cis_section3: true
 rhel9cis_section4: true
@@ -213,26 +213,26 @@ rhel9cis_rule_2_4_2_1: true  # Ensure at is restricted to authorized users
 ## Section 3 Fixes
 # Section 3 rules are used for securely configuring the network configuration(kernel params, ACL, Firewall settings)
 # Network Devices
-rhel9cis_rule_3_1_1: true
-rhel9cis_rule_3_1_2: true
-rhel9cis_rule_3_1_3: true
+rhel9cis_rule_3_1_1: true  # Disable ipv6 if not required
+rhel9cis_rule_3_1_2: true  # Ensure wireless interfaces are disabled
+rhel9cis_rule_3_1_3: true  # Ensure bluetooth services are not in use
 # Network Kernel Modules
-rhel9cis_rule_3_2_1: true
-rhel9cis_rule_3_2_2: true
-rhel9cis_rule_3_2_3: true
-rhel9cis_rule_3_2_4: true
+rhel9cis_rule_3_2_1: true  # Ensure dccp kernel module is not available 
+rhel9cis_rule_3_2_2: true  # Ensure tipc kernel module is not available
+rhel9cis_rule_3_2_3: true  # Ensure rds kernel module is not available
+rhel9cis_rule_3_2_4: true  # Ensure sctp kernel module is not available
 # Network Kernel Parameters
-rhel9cis_rule_3_3_1: true
-rhel9cis_rule_3_3_2: true
-rhel9cis_rule_3_3_3: true
-rhel9cis_rule_3_3_4: true
-rhel9cis_rule_3_3_5: true
-rhel9cis_rule_3_3_6: true
-rhel9cis_rule_3_3_7: true
-rhel9cis_rule_3_3_8: true
-rhel9cis_rule_3_3_9: true
-rhel9cis_rule_3_3_10: true
-rhel9cis_rule_3_3_11: true
+rhel9cis_rule_3_3_1: true  # Ensure IP forwarding is disabled
+rhel9cis_rule_3_3_2: true  # Ensure packet redirect sending is disabled
+rhel9cis_rule_3_3_3: true  # Ensure bogus ICMP responses are ignored
+rhel9cis_rule_3_3_4: true  # Ensure broadcast ICMP requests are ignored
+rhel9cis_rule_3_3_5: true  # Ensure ICMP redirects are not accepted
+rhel9cis_rule_3_3_6: true  # Ensure secure ICMP redirects are not accepted
+rhel9cis_rule_3_3_7: true  # Ensure Reverse Path Filtering is enabled
+rhel9cis_rule_3_3_8: true  # Ensure source routed packets are not accepted
+rhel9cis_rule_3_3_9: true  # Ensure suspicious packets are logged
+rhel9cis_rule_3_3_10: true  # Ensure TCP SYN Cookies is enabled
+rhel9cis_rule_3_3_11: true  # Ensure IPv6 router advertisements are not accepted
 
 ## Section 4 Fixes
 # Section 4 rules are Logging and Auditing (Configure System Accounting (auditd),
@@ -578,3 +578,40 @@ rhel9cis_telnet_required: false
 ## Control - 2.2.5 - Ensure tftp client is not installed
 # Set this variable to `true` to keep package `tftp`; otherwise, the package is uninstalled.
 rhel9cis_tftp_client: false
+
+## Section 3 vars
+
+## Control 3.1.1 - Ensure IPv6 status is identified
+# This variable governs whether ipv6 is enabled or disabled.
+rhel9cis_ipv6_required: true
+
+## Control 3.1.2 - Ensure wireless interfaces are disabled
+# if wireless adapter found allow network manager to be installed
+rhel9cis_install_network_manager: false
+# This variable holds the name of the network manager package, and it is used
+# as a conditional to implement control 3.1.2. If the network manager package
+# is present on the system then the control will be implemented!
+rhel9cis_network_manager_package_name: NetworkManager
+
+## Control 3.1.3 - Ensure bluetooth services are not in use
+# Set this variable to `true` to keep service `bluetooth`; otherwise, the service is uninstalled.
+rhel9cis_bluetooth_service: false
+# Set this variable to `true` to mask service `bluetooth`.
+rhel9cis_bluetooth_mask: false
+
+## Controls 3.3.x System network parameters (host only OR host and router)
+# This variable governs whether specific CIS rules
+# concerned with acceptance and routing of packages are skipped.
+rhel9cis_is_router: false
+
+# This variable governs if the task which updates sysctl(including sysctl reload) is executed.
+# NOTE: The current default value is likely to be overridden by other further tasks(via 'set_fact').
+rhel9cis_sysctl_update: false
+# This variable governs if the task which flushes the IPv4 routing table is executed(forcing subsequent connections to
+# use the new configuration).
+# NOTE: The current default value is likely to be overridden by other further tasks(via 'set_fact').
+rhel9cis_flush_ipv4_route: false
+# This variable governs if the task which flushes the IPv6 routing table is executed(forcing subsequent connections to
+# use the new configuration).
+# NOTE: The current default value is likely to be overridden by other further tasks(via 'set_fact').
+rhel9cis_flush_ipv6_route: false
