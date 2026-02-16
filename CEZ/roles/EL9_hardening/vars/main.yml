@@ -17,6 +17,15 @@ fs_kernel_modules_script: /srv/fs_with_cves.sh
 rhel_gpg_key_pubkey_name: gpg-pubkey-fd431d51-4ae0493b
 rhel_gpg_key_pubkey_content: "Red Hat, Inc. (release key 2) <security@redhat.com> fd431d51"
 
+# Setting the SELinux policy type for the system.
+rhel9cis_selinux_pol: targeted
+
+# Setting the SELinux policy enforcement mode for the system.
+rhel9cis_selinux_enforce: enforcing
+
+# Setting the system-wide crypto policy.
+rhel9cis_crypto_policy: 'FUTURE'
+
 # Zabbix variables for repository configuration - only Zabbix LTS versions are supported.
 zabbix_repository_url: 'https://repo.zabbix.com'
 

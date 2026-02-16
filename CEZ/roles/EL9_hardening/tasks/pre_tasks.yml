@@ -97,3 +97,9 @@
       ansible.builtin.package:
         name: NetworkManager
         state: present
+
+- name: "sshd_config.d/50-redhat.conf exists"
+  when: rhel9cis_rule_5_1_10 or rhel9cis_rule_5_1_11
+  ansible.builtin.stat:
+    path: /etc/ssh/sshd_config.d/50-redhat.conf
+  register: prelim_sshd_50_redhat_file

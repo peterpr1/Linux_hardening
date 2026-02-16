@@ -10,7 +10,7 @@
     - rhel9cis_rule_4_3_3
     - rhel9cis_rule_4_3_4
 
-- name: "4.3.1 | PATCH | Ensure nftables base chains exist"
+- name: "Ensure nftables base chains exist"
   when: 
     - rhel9cis_firewall == 'nftables'
     - rhel9cis_rule_4_3_1
