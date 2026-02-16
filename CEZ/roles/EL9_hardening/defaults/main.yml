@@ -45,10 +45,10 @@ rhel9cis_legacy_boot: false
 # If you do not want the tasks from that section to get executed you simply set the variable to "false".
 # Some sections support sub-section modularization. The super-section and sub-section must both be true
 # for the sub-section to execute.
-rhel9cis_section1: true
-rhel9cis_section2: true
-rhel9cis_section3: true
-rhel9cis_section4: true
+rhel9cis_section1: false
+rhel9cis_section2: false
+rhel9cis_section3: false
+rhel9cis_section4: false
 rhel9cis_section5: true
 rhel9cis_section5_1: true
 rhel9cis_section5_2: true
@@ -717,9 +717,7 @@ rhel9cis_sudolog_location: "/var/log/sudo.log"
 ## Control 5.2.4 - Ensure users must provide password for escalation
 # The following variable specifies a list of users that should not be required to provide a password
 # for escalation. Feel free to edit it according to your needs.
-rhel9cis_sudoers_exclude_nopasswd_list:
-  - ec2-user
-  - vagrant
+rhel9cis_sudoers_exclude_nopasswd_list: ''
 
 ## Control 5.2.6 - Ensure sudo authentication timeout is configured correctly
 # This variable sets the duration (in minutes) during which a user's authentication credentials
