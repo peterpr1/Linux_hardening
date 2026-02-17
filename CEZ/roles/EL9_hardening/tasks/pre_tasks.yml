@@ -103,6 +103,14 @@
   ansible.builtin.stat:
     path: /etc/ssh/sshd_config.d/50-redhat.conf
   register: prelim_sshd_50_redhat_file
+  
+- name: "PRELIM | AUDIT | Capture pam security related files"
+  tags: always
+  ansible.builtin.find:
+    paths:
+      - /etc/security/pwquality.conf.d/
+    patterns: '*.conf'
+  register: prelim_pam_pwquality_confs
 
 - name: "Check authselect profile is selected"
   when: rhel9cis_allow_authselect_updates

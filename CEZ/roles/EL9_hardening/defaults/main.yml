@@ -53,8 +53,6 @@ rhel9cis_section5: true
 rhel9cis_section5_1: false
 rhel9cis_section5_2: false
 rhel9cis_section5_3: true
-rhel9cis_section5_3_1: true
-rhel9cis_section5_3_2: true
 rhel9cis_section5_4: true
 rhel9cis_section6: true
 rhel9cis_section7: true
