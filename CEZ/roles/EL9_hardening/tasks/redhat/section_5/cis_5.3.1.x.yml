@@ -1,0 +1,36 @@
+---
+- name: "Ensure latest version of pam is installed"
+  when:
+    - rhel9cis_rule_5_3_1_1
+    - ansible_facts.packages['pam'][0]['version'] is version('1.5.1-19', '<') or
+      "'pam' not in ansible_facts.packages"
+  ansible.builtin.package:
+    name: pam
+    state: latest
+
+- name: "Ensure latest version of authselect is installed"
+  when:
+    - rhel9cis_rule_5_3_1_2
+    - rhel9cis_authselect_pkg_update
+    - ansible_facts.packages['authselect'][0]['version'] is version('1.2.6-2', '<') or
+      "'authselect' not in ansible_facts.packages"
+  block:
+    - name: "Ensure latest version of authselect is installed | Patch"
+      ansible.builtin.package:
+        name: authselect
+        state: latest
+      register: discovered_authselect_updated
+
+    - name: "Ensure latest version of authselect is installed | Set fact if updated"
+      when: discovered_authselect_updated.changed 
+      ansible.builtin.set_fact:
+        authselect_update: OK
+
+- name: "Ensure libpwquality is installed"
+  when:
+    - rhel9cis_rule_5_3_1_3
+    - ansible_facts.packages['libpwquality'][0]['version'] is version('1.4.4-8', '<') or
+      "'libpwquality' not in ansible_facts.packages"
+  ansible.builtin.package:
+    name: libpwquality
+    state: latest

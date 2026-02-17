@@ -103,3 +103,17 @@
   ansible.builtin.stat:
     path: /etc/ssh/sshd_config.d/50-redhat.conf
   register: prelim_sshd_50_redhat_file
+
+- name: "Check authselect profile is selected"
+  when: rhel9cis_allow_authselect_updates
+  block:
+    - name: "Check authselect profile name has been updated | Ensure name from default is changed"
+      ansible.builtin.assert:
+        that: rhel9cis_authselect_custom_profile_name != 'cis_custom_profile'
+        fail_msg: "You still have the default name for your authselect profile"
+
+    - name: "Check authselect profile is selected | Check current profile"
+      ansible.builtin.command: authselect list
+      changed_when: false
+      failed_when: prelim_authselect_current_profile.rc not in [ 0, 1 ]
+      register: prelim_authselect_current_profile
