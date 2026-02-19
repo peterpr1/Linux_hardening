@@ -170,3 +170,17 @@
   when: 
     - rhel9cis_section5
     - rhel9cis_section5_3
+
+- name: Import tasks from section 5 - cis_5.3.3.3.x.yml
+  import_tasks:
+    file: section_5/cis_5.3.3.3.x.yml
+  when: 
+    - rhel9cis_section5
+    - rhel9cis_section5_3
+
+- name: Import tasks from section 5 - cis_5.3.3.4.x.yml
+  import_tasks:
+    file: section_5/cis_5.3.3.4.x.yml
+  when: 
+    - rhel9cis_section5
+    - rhel9cis_section5_3
