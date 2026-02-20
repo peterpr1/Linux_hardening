@@ -125,3 +125,55 @@
       changed_when: false
       failed_when: prelim_authselect_current_profile.rc not in [ 0, 1 ]
       register: prelim_authselect_current_profile
+
+- name: "Interactive Users"
+  ansible.builtin.shell: >
+    grep -E -v '^(root|halt|sync|shutdown)' /etc/passwd | awk -F: '(!index($7, "sbin/nologin") && $7 != "/bin/nologin" && $7 != "/bin/false" && $7 != "/dev/null") { print $1":"$3":"$6 }'
+  changed_when: false
+  check_mode: false
+  register: prelim_interactive_users_raw
+
+- name: "Interactive Users (reformat)"
+  ansible.builtin.set_fact:
+    prelim_interactive_users: "{{ prelim_interactive_users | default([]) + [dict([('username', item.split(':')[0]), ('uid', item.split(':')[1]), ('home', item.split(':')[2])])] }}"
+  loop: "{{ prelim_interactive_users_raw.stdout_lines }}"
+
+- name: "Interactive User accounts home directories"
+  ansible.builtin.shell: >
+    grep -E -v '^(root|halt|sync|shutdown)' /etc/passwd | awk -F: '(!index($7, "sbin/nologin") && $7 != "/bin/nologin" && $7 != "/bin/false" && $7 != "/dev/null") { print $6 }'
+  changed_when: false
+  check_mode: false
+  register: prelim_interactive_users_home
+
+- name: "Interactive UIDs"
+  ansible.builtin.shell: >
+    grep -E -v '^(root|halt|sync|shutdown)' /etc/passwd | awk -F: '(!index($7, "sbin/nologin") && $7 != "/bin/nologin" && $7 != "/bin/false") { print $3 }'
+  changed_when: false
+  check_mode: false
+  register: prelim_interactive_uids
+
+- name: "Capture /etc/password variables"
+  ansible.builtin.include_tasks:
+    file: parse_etc_password.yml
+
+- name: "Gather UID 0 accounts other than root"
+  when: rhel9cis_rule_5_4_2_1
+  ansible.builtin.shell: "cat /etc/passwd | awk -F: '($3 == 0 && $1 != \"root\") {i++;print $1 } END {exit i}'"
+  changed_when: false
+  check_mode: false
+  register: prelim_uid_zero_accounts_except_root
+
+- name: "Ensure root password is set"
+  when: rhel9cis_rule_5_4_2_4
+  block:
+    - name: "Ensure root password is set"
+      ansible.builtin.shell: LC_ALL=C passwd -S root | grep -E "(Password set|Password locked)"
+      changed_when: false
+      failed_when: prelim_root_passwd_set.rc not in [ 0, 1 ]
+      register: prelim_root_passwd_set
+
+    - name: "Ensure root password is set"
+      ansible.builtin.assert:
+        that: prelim_root_passwd_set.rc == 0
+        fail_msg: "You have rule 5.4.2.4 enabled this requires that you have a root password set"
+        success_msg: "You have a root password set"

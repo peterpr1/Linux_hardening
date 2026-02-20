@@ -135,6 +135,7 @@
   when: 
     - rhel9cis_section5
     - rhel9cis_section5_1
+    - "'openssh-server' in ansible_facts.packages"
 
 - name: Import tasks from section 5 - cis_5.2.x.yml
   import_tasks:
@@ -184,3 +185,17 @@
   when: 
     - rhel9cis_section5
     - rhel9cis_section5_3
+
+- name: Import tasks from section 5 - cis_5.4.1.x.yml
+  import_tasks:
+    file: section_5/cis_5.4.1.x.yml
+  when: 
+    - rhel9cis_section5
+    - rhel9cis_section5_4
+
+- name: Import tasks from section 5 - cis_5.4.2.x.yml
+  import_tasks:
+    file: section_5/cis_5.4.2.x.yml
+  when: 
+    - rhel9cis_section5
+    - rhel9cis_section5_4
