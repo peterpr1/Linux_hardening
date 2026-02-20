@@ -1,0 +1,33 @@
+---
+- name: "Ensure nologin is not listed in /etc/shells"
+  when: rhel9cis_rule_5_4_3_1
+  ansible.builtin.replace:
+    path: /etc/shells
+    regexp: nologin
+    replace: ""
+
+- name: "Ensure default user shell timeout is configured"
+  when: rhel9cis_rule_5_4_3_2
+  ansible.builtin.blockinfile:
+    path: "{{ item.path }}"
+    state: "{{ item.state }}"
+    marker: "# {mark} - CIS benchmark - Ansible-lockdown"
+    create: true
+    mode: 'go-wx'
+    block: |
+      TMOUT={{ rhel9cis_shell_session_timeout }}
+      readonly TMOUT
+      export TMOUT
+  loop:
+    - { path: "{{ rhel9cis_shell_session_file }}", state: present }
+    - { path: /etc/profile, state: "{{ (rhel9cis_shell_session_file == '/etc/profile') | ternary('present', 'absent') }}" }
+
+- name: "Ensure default user umask is configured"
+  when: rhel9cis_rule_5_4_3_3
+  ansible.builtin.replace:
+    path: "{{ item.path }}"
+    regexp: (?i)(umask\s+\d*)
+    replace: '{{ item.line }} {{ rhel9cis_bash_umask }}'
+  loop:
+    - { path: '/etc/profile', line: 'umask' }
+    - { path: '/etc/login.defs', line: 'UMASK' }
