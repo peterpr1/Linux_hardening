@@ -199,3 +199,55 @@
   when: 
     - rhel9cis_section5
     - rhel9cis_section5_4
+
+- name: Import tasks from section 5 - cis_5.4.3.x.yml
+  import_tasks:
+    file: section_5/cis_5.4.3.x.yml
+  when: 
+    - rhel9cis_section5
+    - rhel9cis_section5_4
+
+- name: Import tasks from section 6 - cis_6.1.x.yml
+  import_tasks:
+    file: section_6/cis_6.1.x.yml
+  when: rhel9cis_section6
+
+- name: Import tasks from section 6 - cis_6.2.1.x.yml
+  import_tasks:
+    file: section_6/cis_6.2.1.x.yml
+  when: rhel9cis_section6
+
+- name: Import tasks from section 6 - cis_6.2.2.1.x.yml
+  import_tasks:
+    file: section_6/cis_6.2.2.1.x.yml
+  when: rhel9cis_section6
+
+- name: Import tasks from section 6 - cis_6.2.2.x.yml
+  import_tasks:
+    file: section_6/cis_6.2.2.x.yml
+  when: rhel9cis_section6
+
+- name: Import tasks from section 6 - cis_6.2.3.x.yml
+  import_tasks:
+    file: section_6/cis_6.2.3.x.yml
+  when: rhel9cis_section6
+
+- name: Import tasks from section 6 - cis_6.2.4.1.yml
+  import_tasks:
+    file: section_6/cis_6.2.4.1.yml
+  when: rhel9cis_section6
+
+- name: Import tasks from section 6 - cis_6.3.1.x.yml
+  import_tasks:
+    file: section_6/cis_6.3.1.x.yml
+  when: rhel9cis_section6
+
+- name: Import tasks from section 7 - cis_7.1.x.yml
+  import_tasks:
+    file: section_7/cis_7.1.x.yml
+  when: rhel9cis_section7
+
+- name: Import tasks from section 7 - cis_7.2.x.yml
+  import_tasks:
+    file: section_7/cis_7.2.x.yml
+  when: rhel9cis_section7

@@ -60,7 +60,7 @@
           --------------------------------------------------------------------------------------------------------------
           You have other groups assigned to GID 0 - Please resolve. The following groups have GID 0: {{ discovered_gid0_groups.stdout_lines }}
 
-- name: "Ensure root account access is controlled "
+- name: "Ensure root account access is controlled"
   when: rhel9cis_rule_5_4_2_4
   ansible.builtin.debug:
     msg: "This is set as an assert in pre_tasks"

@@ -45,18 +45,24 @@ rhel9cis_legacy_boot: false
 # If you do not want the tasks from that section to get executed you simply set the variable to "false".
 # Some sections support sub-section modularization. The super-section and sub-section must both be true
 # for the sub-section to execute.
-rhel9cis_section1: false
-rhel9cis_section2: false
-rhel9cis_section3: false
-rhel9cis_section4: false
+rhel9cis_section1: true
+rhel9cis_section2: true
+rhel9cis_section3: true
+rhel9cis_section4: true
 rhel9cis_section5: true
-rhel9cis_section5_1: false
-rhel9cis_section5_2: false
+rhel9cis_section5_1: true
+rhel9cis_section5_2: true
 rhel9cis_section5_3: true
 rhel9cis_section5_4: true
 rhel9cis_section6: true
 rhel9cis_section7: true
 
+# Whether to skip the system reboot after applying the hardening configurations.
+# System will reboot if false, can give better audit results
+skip_reboot: true
+
+# default value will change to true but wont reboot if not enabled but will error
+change_requires_reboot: false
 
 # These variables correspond with the CIS rule IDs or paragraph numbers defined in the CIS benchmark documents.
 # PLEASE NOTE: 
@@ -244,192 +250,147 @@ rhel9cis_rule_4_3_4: true # Ensure nftables loopback traffic is configured
 # Section 5 rules control Access, Authentication, and Authorization (Configure time-based job schedulers,
 # Configure sudo, Configure SSH Server, Configure PAM and User Accounts and Environment)
 # Configure SSH Server
-rhel9cis_rule_5_1_1: true
-rhel9cis_rule_5_1_2: true
-rhel9cis_rule_5_1_3: true
-rhel9cis_rule_5_1_4: true
-rhel9cis_rule_5_1_5: true
-rhel9cis_rule_5_1_6: true
-rhel9cis_rule_5_1_7: true
-rhel9cis_rule_5_1_8: true
-rhel9cis_rule_5_1_9: true
-rhel9cis_rule_5_1_10: true
-rhel9cis_rule_5_1_11: true
-rhel9cis_rule_5_1_12: true
-rhel9cis_rule_5_1_13: true
-rhel9cis_rule_5_1_14: true
-rhel9cis_rule_5_1_15: true
-rhel9cis_rule_5_1_16: true
-rhel9cis_rule_5_1_17: true
-rhel9cis_rule_5_1_18: true
-rhel9cis_rule_5_1_19: true
-rhel9cis_rule_5_1_20: true
-rhel9cis_rule_5_1_21: true
-rhel9cis_rule_5_1_22: true
+rhel9cis_rule_5_1_1: true # Ensure permissions on /etc/ssh/sshd_config are configured
+rhel9cis_rule_5_1_2: true # Ensure permissions on SSH private host key files are configured
+rhel9cis_rule_5_1_3: true # Ensure permissions on SSH public host key files are configured
+rhel9cis_rule_5_1_4: true # Ensure sshd Ciphers are configured
+rhel9cis_rule_5_1_5: true # Ensure sshd KexAlgorithms is configured
+rhel9cis_rule_5_1_6: true # Ensure sshd MACs are configured
+rhel9cis_rule_5_1_7: true # Ensure sshd access is configured
+rhel9cis_rule_5_1_8: true # Ensure sshd Banner is configured
+rhel9cis_rule_5_1_9: true # Ensure sshd ClientAliveInterval and ClientAliveCountMax are configured
+rhel9cis_rule_5_1_10: true # Ensure sshd DisableForwarding is enabled
+rhel9cis_rule_5_1_11: true # Ensure sshd GSSAPIAuthentication is disabled
+rhel9cis_rule_5_1_12: true # Ensure sshd HostbasedAuthentication is disabled
+rhel9cis_rule_5_1_13: true # Ensure sshd IgnoreRhosts is enabled
+rhel9cis_rule_5_1_14: true # Ensure sshd LoginGraceTime is set to one minute or less
+rhel9cis_rule_5_1_15: true # Ensure sshd LogLevel is appropriate
+rhel9cis_rule_5_1_16: true # Ensure sshd MaxAuthTries is set to 4 or less
+rhel9cis_rule_5_1_17: true # Ensure sshd MaxStartups is configured
+rhel9cis_rule_5_1_18: true # Ensure SSH MaxSessions is set to 10 or less
+rhel9cis_rule_5_1_19: true # Ensure sshd PermitEmptyPasswords is disabled
+rhel9cis_rule_5_1_20: true # Ensure sshd PermitRootLogin is disabled
+rhel9cis_rule_5_1_21: true # Ensure sshd PermitUserEnvironment is disabled
+rhel9cis_rule_5_1_22: true # Ensure SSH PAM is enable
 # 5.2 Configure Privilege Escalation
-rhel9cis_rule_5_2_1: true
-rhel9cis_rule_5_2_2: true
-rhel9cis_rule_5_2_3: true
-rhel9cis_rule_5_2_4: true
-rhel9cis_rule_5_2_5: true
-rhel9cis_rule_5_2_6: true
-rhel9cis_rule_5_2_7: true
+rhel9cis_rule_5_2_1: true # Ensure sudo is installed
+rhel9cis_rule_5_2_2: true # Ensure sudo commands use pty
+rhel9cis_rule_5_2_3: true # Ensure sudo log file exists
+rhel9cis_rule_5_2_4: true # Ensure users must provide password for escalation
+rhel9cis_rule_5_2_5: true # Ensure re-authentication for privilege escalation is not disabled globally
+rhel9cis_rule_5_2_6: true # Ensure sudo authentication timeout is configured correctly
+rhel9cis_rule_5_2_7: true # Ensure access to the su command is restricted
 # 5.3.1.x Configure PAM software packages
-rhel9cis_rule_5_3_1_1: true
-rhel9cis_rule_5_3_1_2: true
-rhel9cis_rule_5_3_1_3: true
+rhel9cis_rule_5_3_1_1: true # Ensure latest version of pam is installed
+rhel9cis_rule_5_3_1_2: true # Ensure latest version of authselect is installed
+rhel9cis_rule_5_3_1_3: true # Ensure libpwquality is installed
 # 5.3.2 Configure authselect
-rhel9cis_rule_5_3_2_1: true
-rhel9cis_rule_5_3_2_2: true
-rhel9cis_rule_5_3_2_3: true
-rhel9cis_rule_5_3_2_4: true
-rhel9cis_rule_5_3_2_5: true
+rhel9cis_rule_5_3_2_1: true # Ensure active authselect profile includes pam modules
+rhel9cis_rule_5_3_2_2: true # Ensure pam_faillock module is enabled
+rhel9cis_rule_5_3_2_3: true # Ensure pam_pwquality module is enabled
+rhel9cis_rule_5_3_2_4: true # Ensure pam_pwhistory module is enabled
+rhel9cis_rule_5_3_2_5: true # Ensure pam_unix module is enabled
 # 5.3.3.1 Configure pam_faillock module
-rhel9cis_rule_5_3_3_1_1: true
-rhel9cis_rule_5_3_3_1_2: true
-rhel9cis_rule_5_3_3_1_3: true
+rhel9cis_rule_5_3_3_1_1: true # nsure password failed attempts lockout is configured
+rhel9cis_rule_5_3_3_1_2: true # Ensure password unlock time is configured
+rhel9cis_rule_5_3_3_1_3: true # Ensure password failed attempts lockout includes root account
 # 5.3.3.2 Configure pam_pwquality module
-rhel9cis_rule_5_3_3_2_1: true
-rhel9cis_rule_5_3_3_2_2: true
-rhel9cis_rule_5_3_3_2_3: true
-rhel9cis_rule_5_3_3_2_4: true
-rhel9cis_rule_5_3_3_2_5: true
-rhel9cis_rule_5_3_3_2_6: true
-rhel9cis_rule_5_3_3_2_7: true
-rhel9cis_rule_5_3_3_2_8: true
+rhel9cis_rule_5_3_3_2_1: true # Ensure password number of changed characters is configured
+rhel9cis_rule_5_3_3_2_2: true # Ensure password length is configured
+rhel9cis_rule_5_3_3_2_3: true # Ensure password complexity is configured
+rhel9cis_rule_5_3_3_2_4: true # Ensure password same consecutive characters is configured
+rhel9cis_rule_5_3_3_2_5: true # Ensure password maximum sequential characters is configured
+rhel9cis_rule_5_3_3_2_6: true # Ensure password dictionary check is enabled
+rhel9cis_rule_5_3_3_2_7: true # Ensure password quality is enforced for the root user
 # 5.3.3.3 Configure pam_pwhistory module
 # These are added as part of 5.3.2.4 using jinja2 template
-rhel9cis_rule_5_3_3_3_1: true
-rhel9cis_rule_5_3_3_3_2: true
-rhel9cis_rule_5_3_3_3_3: true
+rhel9cis_rule_5_3_3_3_1: true # Ensure password history remember is configured
+rhel9cis_rule_5_3_3_3_2: true # Ensure password history is enforced for the root user
+rhel9cis_rule_5_3_3_3_3: true # Ensure pam_pwhistory includes use_authtok
 # 5.3.3.4 Configure pam_unix module
-rhel9cis_rule_5_3_3_4_1: true
-rhel9cis_rule_5_3_3_4_2: true
-rhel9cis_rule_5_3_3_4_3: true
-rhel9cis_rule_5_3_3_4_4: true
+rhel9cis_rule_5_3_3_4_1: true # Ensure pam_unix does not include nullok
+rhel9cis_rule_5_3_3_4_2: true # Ensure pam_unix does not include remember
+rhel9cis_rule_5_3_3_4_3: true # Ensure pam_unix includes a strong password hashing algorithm
+rhel9cis_rule_5_3_3_4_4: true # Ensure pam_unix includes use_authtok
 # 5.4 User Accounts and Environment
 # 5.4.1 Configure shadow password suite parameters
-rhel9cis_rule_5_4_1_1: true
-rhel9cis_rule_5_4_1_2: true
-rhel9cis_rule_5_4_1_3: true
-rhel9cis_rule_5_4_1_4: true
-rhel9cis_rule_5_4_1_5: true
-rhel9cis_rule_5_4_1_6: true
+rhel9cis_rule_5_4_1_1: true # Ensure password expiration is 365 days or less
+rhel9cis_rule_5_4_1_2: true # Ensure minimum password days is configured
+rhel9cis_rule_5_4_1_3: true # Ensure password expiration warning days is configured
+rhel9cis_rule_5_4_1_4: true # Ensure strong password hashing algorithm is configured
+rhel9cis_rule_5_4_1_5: true # Ensure inactive password lock is configured
+rhel9cis_rule_5_4_1_6: true # Ensure all users last password change date is in the past
 # 5.4.2 Configure root and system accounts and environment
-rhel9cis_rule_5_4_2_1: true
-rhel9cis_rule_5_4_2_2: true
-rhel9cis_rule_5_4_2_3: true
-rhel9cis_rule_5_4_2_4: true
-rhel9cis_rule_5_4_2_5: true
-rhel9cis_rule_5_4_2_6: true
-rhel9cis_rule_5_4_2_7: false
-rhel9cis_rule_5_4_2_8: false 
+rhel9cis_rule_5_4_2_1: true # Ensure root is the only UID 0 account
+rhel9cis_rule_5_4_2_2: true # Ensure root is the only GID 0 account
+rhel9cis_rule_5_4_2_3: true # Ensure group root is the only GID 0 group
+rhel9cis_rule_5_4_2_4: true # Ensure root account access is controlled
+rhel9cis_rule_5_4_2_5: true # Ensure root PATH Integrity
+rhel9cis_rule_5_4_2_6: true # Ensure root user umask is configured
+rhel9cis_rule_5_4_2_7: false # Ensure system accounts do not have a valid login shell
+rhel9cis_rule_5_4_2_8: false # Ensure accounts without a valid login shell are locked | Lock accounts
 # 5.4.2 Configure user default environment
-rhel9cis_rule_5_4_3_1: true
-rhel9cis_rule_5_4_3_2: true
-rhel9cis_rule_5_4_3_3: true
+rhel9cis_rule_5_4_3_1: true # Ensure nologin is not listed in /etc/shells
+rhel9cis_rule_5_4_3_2: true # Ensure default user shell timeout is configured
+rhel9cis_rule_5_4_3_3: true # Ensure default user umask is configured
 
 ## Section 6 Fixes
 # Section 6 rules control Logging and Auditing
-# Configure Integrity Checking
-rhel9cis_rule_6_1_1: true
-rhel9cis_rule_6_1_2: true
-rhel9cis_rule_6_1_3: true
 # 6.2.1 Configure systemd-journald service
-rhel9cis_rule_6_2_1_1: true
-rhel9cis_rule_6_2_1_2: true
-rhel9cis_rule_6_2_1_3: true
-rhel9cis_rule_6_2_1_4: true
+rhel9cis_rule_6_2_1_1: true # Ensure journald service is enabled and active
+rhel9cis_rule_6_2_1_2: true # Ensure journald log file access is configured
+rhel9cis_rule_6_2_1_3: true # Ensure journald log file rotation is configured
+rhel9cis_rule_6_2_1_4: true # Ensure only one logging system is in use
 # 6.2.2.x Configure journald
-rhel9cis_rule_6_2_2_1_1: true
-rhel9cis_rule_6_2_2_1_2: true
-rhel9cis_rule_6_2_2_1_3: true
-rhel9cis_rule_6_2_2_1_4: true
-rhel9cis_rule_6_2_2_2: true
-rhel9cis_rule_6_2_2_3: true
-rhel9cis_rule_6_2_2_4: true
+rhel9cis_rule_6_2_2_1_1: false # Ensure systemd-journal-remote is installed
+rhel9cis_rule_6_2_2_1_2: false # Ensure systemd-journal-upload authentication is configured
+rhel9cis_rule_6_2_2_1_3: false # Ensure systemd-journal-upload is enabled and active
+rhel9cis_rule_6_2_2_1_4: false # Ensure systemd-journal-remote service is not in use
+rhel9cis_rule_6_2_2_2: true # Ensure journald ForwardToSyslog is disabled
+rhel9cis_rule_6_2_2_3: true # Ensure journald Compress is configured
+rhel9cis_rule_6_2_2_4: true # Ensure journald Storage is configured
 # 6.2.3 Configure rsyslog
-rhel9cis_rule_6_2_3_1: true
-rhel9cis_rule_6_2_3_2: true
-rhel9cis_rule_6_2_3_3: true
-rhel9cis_rule_6_2_3_4: true
-rhel9cis_rule_6_2_3_5: true
-rhel9cis_rule_6_2_3_6: true
-rhel9cis_rule_6_2_3_7: true
-rhel9cis_rule_6_2_3_8: true
+rhel9cis_rule_6_2_3_1: true # Ensure rsyslog installed
+rhel9cis_rule_6_2_3_2: true # Ensure rsyslog Service is enabled and active
+rhel9cis_rule_6_2_3_3: true # Ensure journald is configured to send logs to rsyslog
+rhel9cis_rule_6_2_3_4: true # Ensure rsyslog log file creation mode is configured
+rhel9cis_rule_6_2_3_5: true # Ensure logging is configured
+rhel9cis_rule_6_2_3_6: true # Ensure rsyslog is configured to send logs to a remote log host
+rhel9cis_rule_6_2_3_7: true # Ensure rsyslog is not configured to recieve logs from a remote client
+rhel9cis_rule_6_2_3_8: true # Ensure rsyslog logrotate is configured
 # 6.2.4 Configure Logfiles
-rhel9cis_rule_6_2_4_1: true
+rhel9cis_rule_6_2_4_1: true # Ensure access to all logfiles has been configured
 # 6.3 Configure Auditing
 # 6.3.1 Configure auditd Service
-rhel9cis_rule_6_3_1_1: true
-rhel9cis_rule_6_3_1_2: true
-rhel9cis_rule_6_3_1_3: true
-rhel9cis_rule_6_3_1_4: true
-# 6.3.2 Configure Data Retention
-rhel9cis_rule_6_3_2_1: true
-rhel9cis_rule_6_3_2_2: true
-rhel9cis_rule_6_3_2_3: true
-rhel9cis_rule_6_3_2_4: true
-# 6.3.3 Configure auditd Rules
-rhel9cis_rule_6_3_3_1: true
-rhel9cis_rule_6_3_3_2: true
-rhel9cis_rule_6_3_3_3: true
-rhel9cis_rule_6_3_3_4: true
-rhel9cis_rule_6_3_3_5: true
-rhel9cis_rule_6_3_3_6: true
-rhel9cis_rule_6_3_3_7: true
-rhel9cis_rule_6_3_3_8: true
-rhel9cis_rule_6_3_3_9: true
-rhel9cis_rule_6_3_3_10: true
-rhel9cis_rule_6_3_3_11: true
-rhel9cis_rule_6_3_3_12: true
-rhel9cis_rule_6_3_3_13: true
-rhel9cis_rule_6_3_3_14: true
-rhel9cis_rule_6_3_3_15: true
-rhel9cis_rule_6_3_3_16: true
-rhel9cis_rule_6_3_3_17: true
-rhel9cis_rule_6_3_3_18: true
-rhel9cis_rule_6_3_3_19: true
-rhel9cis_rule_6_3_3_20: true
-rhel9cis_rule_6_3_3_21: true
-# 6.3.4 Configure auditd File Access
-rhel9cis_rule_6_3_4_1: true
-rhel9cis_rule_6_3_4_2: true
-rhel9cis_rule_6_3_4_3: true
-rhel9cis_rule_6_3_4_4: true
-rhel9cis_rule_6_3_4_5: true
-rhel9cis_rule_6_3_4_6: true
-rhel9cis_rule_6_3_4_7: true
-rhel9cis_rule_6_3_4_8: true
-rhel9cis_rule_6_3_4_9: true
-rhel9cis_rule_6_3_4_10: true
+rhel9cis_rule_6_3_1_1: true # Ensure auditd is installed
+rhel9cis_rule_6_3_1_2: true # Ensure auditd service is enabled and active
 
 ## Section 7 Fixes
 # Section 7 rules control System Maintenance
 # System File Permissions
-rhel9cis_rule_7_1_1: true
-rhel9cis_rule_7_1_2: true
-rhel9cis_rule_7_1_3: true
-rhel9cis_rule_7_1_4: true
-rhel9cis_rule_7_1_5: true
-rhel9cis_rule_7_1_6: true
-rhel9cis_rule_7_1_7: true
-rhel9cis_rule_7_1_8: true
-rhel9cis_rule_7_1_9: true
-rhel9cis_rule_7_1_10: true
-rhel9cis_rule_7_1_11: true
-rhel9cis_rule_7_1_12: true
-rhel9cis_rule_7_1_13: true
+rhel9cis_rule_7_1_1: true # nsure permissions on /etc/passwd are configured
+rhel9cis_rule_7_1_2: true # Ensure permissions on /etc/passwd- are configured
+rhel9cis_rule_7_1_3: true # Ensure permissions on /etc/group are configured
+rhel9cis_rule_7_1_4: true # Ensure permissions on /etc/group- are configured
+rhel9cis_rule_7_1_5: true # Ensure permissions on /etc/shadow are configured
+rhel9cis_rule_7_1_6: true # Ensure permissions on /etc/shadow- are configured
+rhel9cis_rule_7_1_7: true # Ensure permissions on /etc/gshadow are configured
+rhel9cis_rule_7_1_8: true # Ensure permissions on /etc/gshadow- are configured
+rhel9cis_rule_7_1_9: true # Ensure permissions on /etc/shells are configured
+rhel9cis_rule_7_1_10: true # Ensure permissions on /etc/security/opasswd are configured
+rhel9cis_rule_7_1_11: true # Ensure world writable files and directories are secured
+rhel9cis_rule_7_1_12: true # Ensure no files or directories without an owner and a group exist
+rhel9cis_rule_7_1_13: true # Ensure SUID and SGID files are reviewed
 # 7.2 Local User and Group Settings
-rhel9cis_rule_7_2_1: true
-rhel9cis_rule_7_2_2: true
-rhel9cis_rule_7_2_3: true
-rhel9cis_rule_7_2_4: true
-rhel9cis_rule_7_2_5: true
-rhel9cis_rule_7_2_6: true
-rhel9cis_rule_7_2_7: true
-rhel9cis_rule_7_2_8: true
-rhel9cis_rule_7_2_9: true
+rhel9cis_rule_7_2_1: true # Ensure accounts in /etc/passwd use shadowed passwords
+rhel9cis_rule_7_2_2: true # nsure /etc/shadow password fields are not empty
+rhel9cis_rule_7_2_3: true # Ensure all groups in /etc/passwd exist in /etc/group
+rhel9cis_rule_7_2_4: true # Ensure no duplicate UIDs exist
+rhel9cis_rule_7_2_5: true # Ensure no duplicate GIDs exist
+rhel9cis_rule_7_2_6: true # Ensure no duplicate user names exist
+rhel9cis_rule_7_2_7: true # Ensure no duplicate group names exist
+rhel9cis_rule_7_2_8: false # Ensure local interactive user home directories are configured
+rhel9cis_rule_7_2_9: true # Ensure local interactive user dot files access is configured
 
 # --------------------------------------------------- End of sections switches ---------------------------------------------------------- #
 
@@ -931,3 +892,193 @@ rhel9cis_shell_session_file: /etc/profile.d/tmout.sh
 # The following variable specifies the "umask" to set in the `/etc/bash.bashrc` and `/etc/profile`.
 # The value needs to be `027` or more restrictive to comply with CIS standards.
 rhel9cis_bash_umask: '0027'  # 0027 or more restrictive
+
+
+
+## Section 6 vars
+
+## Preferred method of logging
+## Controls 6.2.1.x | Configure systemd-journald service
+## Controls 6.2.2.x | Configured journald
+## Controls 6.2.3.x | Configure rsyslog
+# This variable governs which logging service should be used, choosing between 'rsyslog'
+# or 'journald'(CIS recommendation) will trigger the execution of the associated subsection, as the-best
+# practices are written wholly independent of each other.
+rhel9cis_syslog: rsyslog
+
+## Control 6.2.1.3 - Ensure journald log rotation is configured per site policy
+# Current variable configures the max amount of disk space the logs will use(thus, journal files
+# will not grow without bounds)
+# The variables below related to journald, please set these to your site specific values
+# These variable specifies how much disk space the journal may use up at most
+# Specify values in bytes or use K, M, G, T, P, E as units for the specified sizes.
+# See https://www.freedesktop.org/software/systemd/man/journald.conf.html for more information.
+rhel9cis_journald_systemmaxuse: 500M
+## Control 6.2.1.3 - Ensure journald log rotation is configured per site policy
+# Current variable configures the amount of disk space to keep free for other uses.
+rhel9cis_journald_systemkeepfree: 1G
+## Control 6.2.1.3 - Ensure journald log rotation is configured per site policy
+# This variable configures how much disk space the journal may use up at most.
+# Similar with 'rhel9cis_journald_systemmaxuse', but related to runtime space.
+rhel9cis_journald_runtimemaxuse: 200M
+## Control 6.2.1.3 - Ensure journald log rotation is configured per site policy
+# This variable configures the actual amount of disk space to keep free
+# Similar with 'rhel9cis_journald_systemkeepfree', but related to runtime space.
+rhel9cis_journald_runtimekeepfree: 1G
+## Control 6.2.1.3 - Ensure journald log rotation is configured per site policy
+# Current variable governs the settings for log retention(how long the log files will be kept).
+# Thus, it specifies the maximum time to store entries in a single journal
+# file before rotating to the next one. Set to 0 to turn off this feature.
+# The given values is interpreted as seconds, unless suffixed with the units
+# `year`, `month`, `week`, `day`, `h` or `m` to override the default time unit of seconds.
+# Values are Xm, Xh, Xday, Xweek, Xmonth, Xyear, for example 2week is two weeks
+# ATTENTION: Uncomment the keyword below when values are set!
+rhel9cis_journald_maxfilesec: 1week
+
+## Control 6.2.2.1.2 - Ensure systemd-journal-upload authentication is configured
+# 'rhel9cis_journal_upload_url' is the ip address to upload the journal entries to
+#  URL value may specify either just the hostname or both the protocol and hostname. 'https' is the default. The port
+#  number may be specified after a colon (":"), otherwise 19532 will be used by default.
+rhel9cis_journal_upload_url: 192.168.50.42
+## Control 6.2.2.1.2 - Ensure systemd-journal-remote is configured
+# This variable specifies the path to the private key file used by the remote journal
+# server to authenticate itself to the client. This key is used alongside the server's
+# public certificate to establish secure communication. The path below has the default
+# path/file, but it is also allowed for a user to create its custom path/filename.
+rhel9cis_journal_upload_serverkeyfile: "/etc/ssl/private/journal-upload.pem"
+## Control 6.2.2.1.2 - Ensure systemd-journal-remote is configured
+# This variable specifies the path to the public certificate file of the remote journal
+# server. This certificate is used to verify the authenticity of the remote server. The path
+# below has the default path/file, but it is also allowed for a user to create its custom
+# path/filename.
+rhel9cis_journal_servercertificatefile: "/etc/ssl/certs/journal-upload.pem"
+## Control 6.2.2.1.2 - Ensure systemd-journal-remote is configured
+# This variable specifies the path to a file containing one or more public certificates
+# of certificate authorities (CAs) that the client trusts. These trusted certificates are used
+# to validate the authenticity of the remote server's certificate. The path below has the default
+## path/file, but it is also allowed for a user to create its custom path/filename.
+rhel9cis_journal_trustedcertificatefile: "/etc/ssl/ca/trusted.pem"
+# ATTENTION: Uncomment the keyword below when values are set!
+
+## Control 6.2.3.5 | PATCH | Ensure logging is configured
+# This variable governs if current Ansible role should manage syslog settings
+# in /etc/rsyslog.conf file, namely mail, news and misc(warn, messages)
+rhel9cis_rsyslog_ansiblemanaged: true
+
+## Control 6.2.3.6 - Ensure rsyslog is configured to send logs to a remote log host
+# This variable governs if 'rsyslog' service should be automatically configured to forward messages to a
+# remote log server. If set to 'false', the configuration of the 'omfwd' plugin, used to provide forwarding
+# over UDP or TCP, will not be performed.
+rhel9cis_remote_log_server: false
+## Control 6.2.3.6 - Ensure rsyslog is configured to send logs to a remote log host
+# This variable configures the value of the 'target' parameter to be configured when enabling
+# forwarding syslog messages to a remote log server, thus configuring the actual FQDN/IP address of the
+# destination server. For this value to be reflected in the configuration, the variable which enables the
+# automatic configuration of rsyslog forwarding must be enabled('rhel9cis_remote_log_server: true').
+rhel9cis_remote_log_host: logagg.example.com
+## Control 6.2.3.6 - Ensure rsyslog is configured to send logs to a remote log host
+# This variable configures the value of the 'port' parameter to be configured when enabling
+# forwarding syslog messages to a remote log server. The default value for this destination port is 514.
+# For this value to be reflected in the configuration, the variable which enables the
+# automatic configuration of rsyslog forwarding must be enabled('rhel9cis_remote_log_server: true').
+rhel9cis_remote_log_port: 514
+## Control 6.2.3.6 - Ensure rsyslog is configured to send logs to a remote log host
+# This variable configures the value("TCP"/"UDP") of the 'protocol' parameter to be configured when enabling
+# forwarding syslog messages to a remote log server. The default value for the 'omfwd' plug-in is UDP.
+# For this value to be reflected in the configuration, the variable which enables the
+# automatic configuration of rsyslog forwarding must be enabled('rhel9cis_remote_log_server: true').
+rhel9cis_remote_log_protocol: tcp
+## Control 6.2.3.6 - Ensure rsyslog is configured to send logs to a remote log host
+# This variable governs how often an action is retried(value is passed to 'action.resumeRetryCount' parameter) before
+# it is considered to have failed(that roughly translates to discarded messages). The default value is 0, but
+# when set to "-1"(eternal), this setting would prevent rsyslog from dropping messages when retrying to connect
+# if server is not responding. For this value to be reflected in the configuration, the variable which enables the
+# automatic configuration of rsyslog forwarding must be enabled('rhel9cis_remote_log_server: true').
+rhel9cis_remote_log_retrycount: 100
+## Control 6.2.3.6 - Ensure rsyslog is configured to send logs to a remote log host
+# This variable configures the maximum number of messages that can be hold(value is passed to 'queue.size' parameter).
+# For this value to be reflected in the configuration, the variable which enables the automatic configuration
+# of rsyslog forwarding must be enabled('rhel9cis_remote_log_server: true').
+rhel9cis_remote_log_queuesize: 1000
+
+## Control 6.2.3.7 - Ensure rsyslog is not configured to receive logs from a remote client
+# This variable expresses whether the system is used as a log server or not. If set to:
+#  - 'false', current system will act as a log CLIENT, thus it should NOT receive data from other hosts.
+#  - 'true', current system will act as a log SERVER, enabling centralised log management(by protecting log integrity
+# from local attacks on remote clients)
+rhel9cis_system_is_log_server: false
+
+## Control 6.2.3.8 rsyslog rotate
+# This variable configures whether to set your own rsyslog logrotate setting
+# alternate to logrotate default settings. Please refer to logrotate options
+# to match your site requirements
+# This variable sets when to rotate
+rhel9cis_rsyslog_logrotate_rotated_when: weekly
+# This variable sets how many rotations of the file to keep
+rhel9cis_rsyslog_logrotate_rotatation_keep: 4
+# The following variable defines whether to set the compress option
+# or not. Setting it to `true` will carry out the setting.
+rhel9cis_rsyslog_logrotate_compress: true
+# The following variable defines whether to set the missingok option
+# or not. Setting it to `true` will carry out the setting.
+rhel9cis_rsyslog_logrotate_missingok: true
+# The following variable defines whether to set the notifempty option
+# or not. Setting it to `true` will carry out the setting.
+rhel9cis_rsyslog_logrotate_notifempty: true
+# The following variable defines whether to set extra options that can
+# be defined in the `rhel9cis_rsyslog_logrotate_create_opts` variable
+# The variable can be found underneath this variable, in a commented
+# state.
+rhel9cis_rsyslog_logrotate_create: true
+# Extra options that can be added according to rsyslog documentation
+# Uncomment and add the required options e.g. mode owner group
+# rhel9cis_rsyslog_logrotate_create_opts:
+
+
+# Section 7 Vars
+
+## Control 7.1.11 - Ensure no world writable files exist
+# The following variable is a toggle for enabling/disabling the automated
+# removal of world-writable permissions from all files.
+# Possible values are `true` and `false`.
+rhel9cis_no_world_write_adjust: true
+
+## Control 7.1.12 - Ensure no files or directories without an owner and a group exist
+# This variable holds the part of the command that helps detect which files and
+# directories do not have an owner and an affiliated group.
+rhel9cis_exclude_unowned_search_path: (! -path "/run/user/*" -a ! -path "/proc/*" -a ! -path "*/containerd/*" -a ! -path "*/kubelet/pods/*" -a ! -path "*/kubelet/plugins/*" -a ! -path "/sys/fs/cgroup/memory/*" -a ! -path "/var/*/private/*")
+# The value of this variable specifies the owner that will be set for unowned files and directories.
+rhel9cis_unowned_owner: root
+# The value of this variable specifies the group that will be set for ungrouped files and directories.
+rhel9cis_ungrouped_group: root
+# This variable is a toggle for enabling/disabling the automated
+# setting of an owner (specified in variable `rhel9cis_unowned_owner`)
+# for all unowned files and directories.
+# Possible values are `true` and `false`.
+rhel9cis_ownership_adjust: true
+
+## Control 7.1.13 - Ensure SUID and SGID files are reviewed
+# This variable is a toggle for enabling/disabling the automated removal
+# of the SUID bit from all files on all mounts.
+# Possible values are `true` and `false`.
+rhel9cis_suid_sgid_adjust: false
+
+## Control 7.2.8 - Ensure local interactive user home directories are configured
+# UID settings for interactive users
+# These are discovered via logins.def if set true
+rhel9cis_discover_int_uid: true
+# This variable sets the minimum number from which to search for UID
+# Note that the value will be dynamically overwritten if variable `rhel9cis_discover_int_uid` has
+# been set to `true`.
+min_int_uid: 1000
+# This variable sets the maximum number at which the search stops for UID
+# Note that the value will be dynamically overwritten if variable `rhel9cis_discover_int_uid` has
+# been set to `true`.
+max_int_uid: 65533
+
+## Control 7.2.9 - Ensure local interactive user dot files access is configured
+# This variable is a toggle for enabling/disabling the automated modification of
+# permissions on dot files.
+# Possible values are `true` and `false`
+# This setting can impact a running system if not tested sufficiently
+rhel9cis_dotperm_ansiblemanaged: false

@@ -231,6 +231,7 @@
     name: rsyslog
     state: restarted
 
+# cis_6.2.1.x.yml
 - name: Restart journald
   ansible.builtin.systemd:
     name: systemd-journald
@@ -251,30 +252,6 @@
 - name: Authselect update
   ansible.builtin.command: authselect apply-changes
   changed_when: true
-
-## Auditd tasks note order for handlers to run
-
-- name: Auditd immutable check
-  ansible.builtin.command: grep -c "^-e 2" /etc/audit/rules.d/99_auditd.rules
-  changed_when: false
-  register: discovered_auditd_immutable_check
-
-- name: Audit immutable fact
-  when: discovered_auditd_immutable_check.stdout == '1'
-  ansible.builtin.debug:
-    msg: "Reboot required for auditd to apply new rules as immutable set"
-  notify: Change_requires_reboot
-
-- name: Stop auditd process
-  ansible.builtin.command: systemctl kill auditd
-  changed_when: true
-  listen: Restart auditd
-
-- name: Start auditd process
-  ansible.builtin.systemd:
-    name: auditd
-    state: started
-  listen: Restart auditd
 
 - name: Change_requires_reboot
   ansible.builtin.set_fact:

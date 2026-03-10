@@ -228,7 +228,8 @@
         mode: 'u+x,go-wx'
 
     - name: "Run the script detecting file system modules."
-      ansible.builtin.command: "{{ fs_kernel_modules_script }}"
+      ansible.builtin.command: /bin/bash {{ fs_kernel_modules_script }}
+      become: true
       changed_when: false
       failed_when: discovered_fs_modules_loaded.rc not in [ 0, 99 ]
       register: discovered_fs_modules_loaded

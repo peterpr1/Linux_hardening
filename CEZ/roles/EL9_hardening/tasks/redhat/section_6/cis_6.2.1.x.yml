@@ -1,0 +1,105 @@
+---
+- name: "Ensure journald service is enabled and active"
+  when: rhel9cis_rule_6_2_1_1
+
+  ansible.builtin.systemd:
+    name: systemd-journald.service
+    masked: false
+    state: started
+
+- name: "Ensure journald log file access is configured"
+  when: rhel9cis_rule_6_2_1_2
+  block:
+    - name: "Ensure journald log file access is configured | Default file permissions"
+      ansible.builtin.file:
+        path: /usr/lib/tmpfiles.d/systemd.conf
+        mode: 'g-wx,o-rwx'
+
+    - name: "Ensure journald log file access is configured | Check for override file"
+      ansible.builtin.stat:
+        path: /etc/tmpfiles.d/systemd.conf
+      register: discovered_tmpfile_override
+
+    - name: "Ensure journald log file access is configured | If override file check for journal"
+      when: discovered_tmpfile_override.stat.exists
+      ansible.builtin.shell: grep -E 'z /var/log/journal/%m/system.journal \d*' /usr/lib/tmpfiles.d/systemd.conf
+      register: discovered_journald_fileperms_override
+      changed_when: false
+      failed_when: discovered_journald_fileperms_override.rc not in [ 0, 1 ]
+
+    - name: "Ensure journald log file access is configured | Warning if override found"
+      when:
+        - discovered_tmpfile_override.stat.exists
+        - discovered_journald_fileperms_override.stdout | length > 0
+      ansible.builtin.debug:
+        msg: "Warning!! - tmpfiles override found /usr/lib/tmpfiles.d/systemd.conf affecting journald files please confirm matches site policy"
+
+    - name: "Create an entry in the log file for tasks requiring manual intervention."
+      vars:
+        warn_control_id: '6.2.1.2'
+      when:
+        - discovered_tmpfile_override.stat.exists
+        - discovered_journald_fileperms_override.stdout | length > 0
+      ansible.builtin.blockinfile:
+        path: "{{ manual_intervention_log }}"
+        create: yes
+        mode: '0644'
+        marker: ""
+        block: |
+          Recommendations for task "{{ warn_control_id }}":
+          -------------------------------------------------------------------------------------------------------------- 
+          tmpfiles override found /usr/lib/tmpfiles.d/systemd.conf affecting journald files please confirm matches site policy.
+
+- name: "Ensure journald log file rotation is configured"
+  when: rhel9cis_rule_6_2_1_3
+  notify: Restart journald
+  block:
+    - name: "Ensure journald.conf.d directory exists"
+      ansible.builtin.file:
+        path: /etc/systemd/journald.conf.d
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+        
+    - name: "Ensure journald log file rotation is configured | Add file"
+      ansible.builtin.template:
+        src: etc/systemd/journald.conf.d/rotation.conf.j2
+        dest: /etc/systemd/journald.conf.d/rotation.conf
+        owner: root
+        group: root
+        mode: 'g-wx,o-rwx'
+
+    - name: "Ensure journald log file rotation is configured | comment out current entries"
+      ansible.builtin.replace:
+        path: /etc/systemd/journald.conf
+        regexp: "{{ item }}"
+        replace: '#\1'
+      loop:
+        - '^(\s*SystemMaxUse\s*=.*)'
+        - '^(\s*SystemKeepFree\s*=.*)'
+        - '^(\s*RuntimeMaxUse\s*=)'
+        - '^(\s*RuntimeKeepFree\s*=.*)'
+        - '^(\s*MaxFileSec\s*=.*)'
+
+- name: "Ensure only one logging system is in use"
+  when: rhel9cis_rule_6_2_1_4
+  block:
+    - name: "Ensure only one logging system is in use | when rsyslog"
+      when:
+        - rhel9cis_syslog == "rsyslog"
+        - "'systemd-journald' in ansible_facts.packages"
+      ansible.builtin.systemd:
+        name: systemd-journald
+        state: stopped
+        enabled: false
+
+    - name: "Ensure only one logging system is in use | when journald"
+      when:
+        - rhel9cis_syslog == "journald"
+        - "'rsyslog' in ansible_facts.packages"
+      ansible.builtin.systemd:
+        name: rsyslog
+        state: stopped
+        enabled: false
+      register: discovered_rsyslog_service

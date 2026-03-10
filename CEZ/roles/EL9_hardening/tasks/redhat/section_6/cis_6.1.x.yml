@@ -1,0 +1,4 @@
+---
+- name: AIDE - CIS 6.1.1 - 6.1.3
+  ansible.builtin.debug:
+    msg: "AIDE configuration tasks - CIS 6.1.1 - 6.1.3, were completed by playbook 'configure_aide.yml'"

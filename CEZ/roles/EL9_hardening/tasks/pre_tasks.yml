@@ -177,3 +177,30 @@
         that: prelim_root_passwd_set.rc == 0
         fail_msg: "You have rule 5.4.2.4 enabled this requires that you have a root password set"
         success_msg: "You have a root password set"
+
+- name: "Discover Interactive UID_MIN and UID_MAX from /etc/login.defs"
+  when: rhel9cis_discover_int_uid
+  block:
+    - name: "Capture UID_MIN from /etc/login.defs"
+      ansible.builtin.command: awk '/^UID_MIN/ {print $2}' /etc/login.defs
+      changed_when: false
+      failed_when: false
+      check_mode: false
+      register: prelim_uid_min_id
+
+    - name: "Capture UID_MAX from /etc/login.defs"
+      ansible.builtin.command: awk '/^UID_MAX/ {print $2}' /etc/login.defs
+      changed_when: false
+      failed_when: false
+      check_mode: false
+      register: prelim_uid_max_id
+
+- name: "Set facts for interactive UID/GID ranges"
+  tags: always
+  ansible.builtin.set_fact:
+    prelim_min_int_uid: "{{ prelim_uid_min_id.stdout | default(min_int_uid) }}"
+    prelim_max_int_uid: "{{ prelim_uid_max_id.stdout | default(max_int_uid) }}"
+
+- name: "Gather the package facts after pre tasks to ensure we have the most up to date information for use in conditional statements in the main tasks."
+  ansible.builtin.package_facts:
+    manager: auto

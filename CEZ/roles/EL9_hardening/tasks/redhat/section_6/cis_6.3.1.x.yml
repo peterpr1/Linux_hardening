@@ -1,0 +1,23 @@
+---
+
+- name: "Ensure auditd is installed"
+  when: rhel9cis_rule_6_3_1_1
+  block:
+    - name: "Ensure auditd is installed | Install auditd packages"
+      when: '"auditd" not in ansible_facts.packages'
+      ansible.builtin.package:
+        name: audit
+        state: present
+
+    - name: "Ensure auditd is installed | Install auditd-lib packages"
+      when: '"auditd-lib" not in ansible_facts.packages'
+      ansible.builtin.package:
+        name: audit-libs
+        state: present
+
+- name: "Ensure auditd service is enabled and active"
+  when: rhel9cis_rule_6_3_1_2
+  ansible.builtin.systemd:
+    name: auditd
+    state: started
+    enabled: true
